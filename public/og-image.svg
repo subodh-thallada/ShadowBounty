@@ -18,7 +18,7 @@
   />
   
   <!-- Title Text -->
-  <text x="500" y="290" font-family="Inter, sans-serif" font-size="60" font-weight="bold" fill="white">GitHub Profile Score</text>
+  <text x="500" y="290" font-family="Inter, sans-serif" font-size="60" font-weight="bold" fill="white">ShadowBounty</text>
   <text x="500" y="350" font-family="Inter, sans-serif" font-size="30" fill="white">Analyze and store GitHub profiles on the blockchain</text>
   
   <!-- Score Circle with gauge illustration -->

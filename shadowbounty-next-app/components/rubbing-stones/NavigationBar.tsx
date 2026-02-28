@@ -24,7 +24,7 @@ export function NavigationBar() {
             <Link href="/open-muster" className="mr-6">
               <Button variant="ghost" size="sm" className="flex items-center">
                 <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Open Muster
+                Back to ShadowBounty
               </Button>
             </Link>
             <Link href="/rubbing-stones-swarm" className="text-2xl font-bold text-primary">

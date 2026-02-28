@@ -1,7 +1,7 @@
 {
-  "name": "github-profile-score-oauth-server",
+  "name": "shadowbounty-oauth-server",
   "version": "1.0.0",
-  "description": "OAuth server for GitHub Profile Score web3 application",
+  "description": "OAuth server for ShadowBounty web3 application",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",

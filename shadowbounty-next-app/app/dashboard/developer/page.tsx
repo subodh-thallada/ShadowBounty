@@ -1,42 +1,31 @@
 "use client"
 import Link from "next/link"
-import { Button } from "@/components/ui/button"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { DashboardNav } from "@/components/dashboard-nav"
 import { BountyList } from "@/components/bounty-list"
-import { CompanyStats } from "@/components/company-stats"
-import { RubbingStones } from "@/components/rubbing-stones"
+import { DeveloperStats } from "@/components/developer-stats"
+import { Badge } from "@/components/ui/badge"
 
-export default function CompanyDashboard() {
+export default function DeveloperDashboard() {
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-10 border-b bg-background">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <Link href="/" className="font-bold text-xl text-neon-blue">
-              Open Muster
+            <Link href="/" className="font-bold text-xl">
+              ShadowBounty
             </Link>
           </div>
           <nav className="flex items-center gap-4">
-            <Link href="/bounties" className="text-sm font-medium hover:text-neon-blue">
+            <Link href="/bounties" className="text-sm font-medium hover:underline">
               Explore Bounties
             </Link>
-            <RubbingStones />
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-card text-neon-pink border-neon-pink hover:bg-neon-pink hover:text-black"
-            >
-              <Link href="/dashboard/company/create-bounty">Create Bounty</Link>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="bg-card text-neon-green border-neon-green hover:bg-neon-green hover:text-black"
-            >
-              <Link href="/rubbing-stones-swarm">Rubbing Stones Swarm AI</Link>
-            </Button>
-            <div className="h-8 w-8 rounded-full bg-neon-green"></div>
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="bg-primary/10">
+                Tier 2
+              </Badge>
+              <div className="h-8 w-8 rounded-full bg-primary"></div>
+            </div>
           </nav>
         </div>
       </header>
@@ -45,17 +34,17 @@ export default function CompanyDashboard() {
         <main className="flex w-full flex-col overflow-hidden py-6">
           <div className="flex flex-col space-y-6">
             <div>
-              <h1 className="text-3xl font-bold tracking-tight">Company Dashboard</h1>
-              <p className="text-muted-foreground">Manage your bounties and track developer submissions</p>
+              <h1 className="text-3xl font-bold tracking-tight">Developer Dashboard</h1>
+              <p className="text-muted-foreground">Track your bounties and manage your submissions</p>
             </div>
-            <CompanyStats />
-            <Tabs defaultValue="active" className="w-full">
+            <DeveloperStats />
+            <Tabs defaultValue="saved" className="w-full">
               <TabsList>
-                <TabsTrigger value="active">Active Bounties</TabsTrigger>
-                <TabsTrigger value="pending">Pending Review</TabsTrigger>
+                <TabsTrigger value="saved">Saved Bounties</TabsTrigger>
+                <TabsTrigger value="inprogress">In Progress</TabsTrigger>
                 <TabsTrigger value="completed">Completed</TabsTrigger>
               </TabsList>
-              <TabsContent value="active" className="space-y-4">
+              <TabsContent value="saved" className="space-y-4">
                 <BountyList
                   bounties={[
                     {
@@ -64,37 +53,37 @@ export default function CompanyDashboard() {
                       description:
                         "Create a Solidity smart contract that allows users to stake ERC-20 tokens and earn rewards.",
                       prize: 500,
-                      submissions: 0,
                       expiresIn: "5 days",
                       status: "active",
+                      saved: true,
                     },
+                    {
+                      id: "5",
+                      title: "Build Discord Bot Integration",
+                      description: "Create a Discord bot that posts daily questions and interacts with users.",
+                      prize: 350,
+                      expiresIn: "3 days",
+                      status: "active",
+                      saved: true,
+                    },
+                  ]}
+                  actionLabel="Start Building"
+                />
+              </TabsContent>
+              <TabsContent value="inprogress" className="space-y-4">
+                <BountyList
+                  bounties={[
                     {
                       id: "2",
                       title: "Build React Component for Wallet Connection",
                       description:
                         "Create a reusable React component that handles wallet connection with Metamask and other providers.",
                       prize: 300,
-                      submissions: 2,
                       expiresIn: "2 days",
-                      status: "active",
+                      status: "in-progress",
                     },
                   ]}
-                />
-              </TabsContent>
-              <TabsContent value="pending" className="space-y-4">
-                <BountyList
-                  bounties={[
-                    {
-                      id: "3",
-                      title: "Optimize Gas Usage in NFT Contract",
-                      description:
-                        "Refactor our existing NFT contract to reduce gas costs during minting and transfers.",
-                      prize: 750,
-                      submissions: 3,
-                      expiresIn: "1 day",
-                      status: "pending",
-                    },
-                  ]}
+                  actionLabel="Submit Solution"
                 />
               </TabsContent>
               <TabsContent value="completed" className="space-y-4">
@@ -106,11 +95,11 @@ export default function CompanyDashboard() {
                       description:
                         "Build a backend service that fetches and caches token prices from multiple exchanges.",
                       prize: 400,
-                      submissions: 1,
                       completedDate: "2 days ago",
                       status: "completed",
                     },
                   ]}
+                  actionLabel="View Details"
                 />
               </TabsContent>
             </Tabs>

@@ -22,21 +22,21 @@ export function AppSidebar() {
 
   const menuItems = isCompany
     ? [
-        { href: "/company", label: "Overview", icon: LayoutDashboard },
-        { href: "/company/bounties", label: "Bounty Listings", icon: FileText },
-        { href: "/company/submissions", label: "Submissions", icon: Send },
-        { href: "/company/developers", label: "Developers", icon: Users },
-      ]
+      { href: "/company", label: "Overview", icon: LayoutDashboard },
+      { href: "/company/bounties", label: "Bounty Listings", icon: FileText },
+      { href: "/company/submissions", label: "Submissions", icon: Send },
+      { href: "/company/developers", label: "Developers", icon: Users },
+    ]
     : [
-        { href: "/user", label: "Overview", icon: LayoutDashboard },
-        { href: "/user/bounties", label: "My Bounties", icon: FileText },
-        { href: "/user/submissions", label: "Submissions", icon: Send },
-      ]
+      { href: "/user", label: "Overview", icon: LayoutDashboard },
+      { href: "/user/bounties", label: "My Bounties", icon: FileText },
+      { href: "/user/submissions", label: "Submissions", icon: Send },
+    ]
 
   return (
     <Sidebar className="w-64 bg-card">
       <SidebarHeader className="p-4">
-        <h2 className="text-2xl font-bold text-neon-blue">Open Muster</h2>
+        <h2 className="text-2xl font-bold text-neon-blue">ShadowBounty</h2>
       </SidebarHeader>
       <SidebarContent>
         <SidebarMenu>

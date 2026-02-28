@@ -43,7 +43,7 @@ A decentralized web application that analyzes GitHub profiles, securely verifies
 1. Go to your GitHub Settings > Developer Settings > OAuth Apps
 2. Click "New OAuth App"
 3. Fill in the following details:
-   - **Application Name**: GitHub Profile Score (or your preferred name)
+   - **Application Name**: ShadowBounty (or your preferred name)
    - **Homepage URL**: http://localhost:3000 (for development)
    - **Authorization callback URL**: http://localhost:3001/api/auth/github/callback
 4. Click "Register application"

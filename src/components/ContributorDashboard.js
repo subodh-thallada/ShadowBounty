@@ -10,39 +10,39 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
-  
+
   useEffect(() => {
     const fetchData = async () => {
       if (!account || !contract || !profileContract) {
         setLoading(false);
         return;
       }
-      
+
       try {
         // Get contributor's GitHub info
         const [username, verified] = await profileContract.getWalletGitHubInfo(account);
-        
+
         if (!username || !verified) {
           setError("Please connect your GitHub account to view your dashboard");
           setLoading(false);
           return;
         }
-        
+
         // Get contributor's profile score
         const profile = await profileContract.getProfileScore(username);
-        
+
         // Get contributor's active bounties
         const activeBountiesData = await contract.getContributorActiveBounties(account);
-        
+
         // Get contributor's completed bounties
         const completedBountiesData = await contract.getContributorCompletedBounties(account);
-        
+
         // Calculate total earnings
         const totalEarnings = completedBountiesData.reduce(
-          (sum, bounty) => sum + Number(bounty.amount), 
+          (sum, bounty) => sum + Number(bounty.amount),
           0
         );
-        
+
         setProfileData({
           username,
           score: profile.overallScore,
@@ -52,11 +52,11 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
           languageDiversity: profile.languageDiversity,
           recentActivity: profile.recentActivity
         });
-        
+
         setActiveBounties(activeBountiesData);
         setCompletedBounties(completedBountiesData);
         setEarnings(totalEarnings);
-        
+
       } catch (err) {
         console.error("Error fetching dashboard data:", err);
         setError("Failed to load dashboard data. Please try again later.");
@@ -64,10 +64,10 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
         setLoading(false);
       }
     };
-    
+
     fetchData();
   }, [account, contract, profileContract]);
-  
+
   if (loading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
@@ -75,7 +75,7 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
       </div>
     );
   }
-  
+
   if (error) {
     return (
       <div className="max-w-6xl mx-auto mt-8 px-4">
@@ -83,7 +83,7 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
           {error}
         </div>
         <div className="text-center">
-          <Link 
+          <Link
             to="/connect-github"
             className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
           >
@@ -93,11 +93,11 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
       </div>
     );
   }
-  
+
   return (
     <div className="max-w-6xl mx-auto mt-8 px-4">
       <h1 className="text-3xl font-bold text-gray-800 mb-6">Contributor Dashboard</h1>
-      
+
       {/* Profile Overview */}
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
@@ -107,7 +107,7 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
             </div>
             <div>
               <h2 className="text-xl font-semibold text-gray-800">{profileData?.username}</h2>
-              <p className="text-gray-500">GitHub Profile Score: <span className="font-semibold text-blue-600">{profileData?.score}/100</span></p>
+              <p className="text-gray-500">ShadowBounty Score: <span className="font-semibold text-blue-600">{profileData?.score}/100</span></p>
             </div>
           </div>
           <div className="flex flex-wrap gap-4">
@@ -125,15 +125,15 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
             </div>
           </div>
         </div>
-        
+
         <div className="mt-6">
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">Earnings Tier Based on Score</span>
             <span className="text-sm font-medium text-blue-600">{profileData?.score}/100</span>
           </div>
           <div className="h-3 w-full bg-gray-200 rounded-full">
-            <div 
-              className="h-3 bg-blue-600 rounded-full" 
+            <div
+              className="h-3 bg-blue-600 rounded-full"
               style={{ width: `${profileData?.score}%` }}
             ></div>
           </div>
@@ -146,7 +146,7 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
           </div>
         </div>
       </div>
-      
+
       {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <div className="bg-white rounded-lg shadow-md p-6">
@@ -158,7 +158,7 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
           </div>
           <p className="text-gray-500 mt-2">Bounties you're currently working on</p>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-800">Completed</h3>
@@ -168,7 +168,7 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
           </div>
           <p className="text-gray-500 mt-2">Bounties you've successfully completed</p>
         </div>
-        
+
         <div className="bg-white rounded-lg shadow-md p-6">
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-gray-800">Total Earnings</h3>
@@ -177,18 +177,18 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
           <p className="text-gray-500 mt-2">Tokens earned from completed bounties</p>
         </div>
       </div>
-      
+
       {/* Active Bounties */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden mb-8">
         <div className="px-6 py-4 border-b">
           <h3 className="text-lg font-semibold text-gray-800">Active Bounties</h3>
         </div>
-        
+
         <div className="divide-y divide-gray-200">
           {activeBounties.length === 0 ? (
             <div className="px-6 py-8 text-center text-gray-500">
               <p>You don't have any active bounties.</p>
-              <Link 
+              <Link
                 to="/explore-bounties"
                 className="inline-block mt-4 text-blue-600 hover:underline"
               >
@@ -215,7 +215,7 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
                   </div>
                 </div>
                 <div className="mt-2">
-                  <Link 
+                  <Link
                     to={`/bounties/${bounty.projectId}/${bounty.issueId}`}
                     className="text-sm text-blue-600 hover:underline"
                   >
@@ -227,13 +227,13 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
           )}
         </div>
       </div>
-      
+
       {/* Completed Bounties */}
       <div className="bg-white rounded-lg shadow-md overflow-hidden">
         <div className="px-6 py-4 border-b">
           <h3 className="text-lg font-semibold text-gray-800">Completed Bounties</h3>
         </div>
-        
+
         <div className="divide-y divide-gray-200">
           {completedBounties.length === 0 ? (
             <div className="px-6 py-8 text-center text-gray-500">
@@ -259,7 +259,7 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
                   </div>
                 </div>
                 <div className="mt-2">
-                  <Link 
+                  <Link
                     to={`/bounties/${bounty.projectId}/${bounty.issueId}`}
                     className="text-sm text-blue-600 hover:underline"
                   >

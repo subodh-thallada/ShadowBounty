@@ -8,7 +8,7 @@ export const SidebarNav: React.FC = () => {
   return (
     <nav className="w-64 bg-white shadow-md h-screen flex flex-col">
       <div className="p-4 border-b">
-        <h1 className="text-2xl font-bold text-gray-800">Open Muster</h1>
+        <h1 className="text-2xl font-bold text-gray-800">ShadowBounty</h1>
       </div>
       <div className="flex items-center justify-between p-4 border-b">
         <ProfileDropdown />

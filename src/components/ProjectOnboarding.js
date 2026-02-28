@@ -18,30 +18,30 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
   const navigate = useNavigate();
 
   // Check if already connected to GitHub
-// Check if already connected to GitHub
-useEffect(() => {
-  console.log("useEffect triggered");
-  console.log("account:", account);
-  console.log("contract:", !!contract);
-  console.log("profileContract:", !!profileContract);
-  
-  if (account && profileContract) { // Changed from contract to profileContract
-    console.log("Calling checkGitHubConnection from useEffect");
-    checkGitHubConnection();
-  }
-}, [account, contract, profileContract]); // Added profileContract dependency
+  // Check if already connected to GitHub
+  useEffect(() => {
+    console.log("useEffect triggered");
+    console.log("account:", account);
+    console.log("contract:", !!contract);
+    console.log("profileContract:", !!profileContract);
+
+    if (account && profileContract) { // Changed from contract to profileContract
+      console.log("Calling checkGitHubConnection from useEffect");
+      checkGitHubConnection();
+    }
+  }, [account, contract, profileContract]); // Added profileContract dependency
   const checkGitHubConnection = async () => {
     try {
       // Check if user has a verified GitHub connection
       console.log("Checking GitHub connection...");
       console.log("profileContract:", !!profileContract);
       console.log("account:", account);
-      
+
       if (profileContract && account) {
         console.log("Getting wallet GitHub info...");
         const [username, verified, timestamp] = await profileContract.getWalletGitHubInfo(account);
         console.log("GitHub info returned:", { username, verified: !!verified, timestamp });
-        
+
         if (verified && username) {
           // If already connected, check for repositories
           console.log("GitHub is verified, fetching repositories for:", username);
@@ -57,41 +57,41 @@ useEffect(() => {
       console.error('Error checking GitHub connection:', error);
     }
   };
-  
+
 
   const fetchUserRepositories = async (username) => {
     try {
       setLoading(true);
       const OAUTH_SERVER_URL = process.env.REACT_APP_OAUTH_SERVER_URL || 'http://localhost:3001';
-      
+
       // Get repositories with admin access
       const response = await axios.get(
         `${OAUTH_SERVER_URL}/api/github/repos/${username}/authenticated`,
         { withCredentials: true } // Important for cookies
       );
-      
+
       if (response.data && response.data.repoDetails) {
         // Filter repos where user is an admin/owner
-        const adminRepos = response.data.repoDetails.filter(repo => 
+        const adminRepos = response.data.repoDetails.filter(repo =>
           !repo.private || repo.permissions?.admin === true
         );
-        
+
         setProjectInfo(prev => ({
           ...prev,
           repositories: adminRepos
         }));
       }
-      
+
       // Check if any repos are already connected
       const projectResponse = await axios.get(
         `${OAUTH_SERVER_URL}/api/projects/user/${account}`,
         { withCredentials: true }
       );
-      
+
       if (projectResponse.data && projectResponse.data.projects) {
         setConnectedRepos(projectResponse.data.projects.map(p => p.repositoryId));
       }
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Error fetching repositories:', error);
@@ -108,10 +108,10 @@ useEffect(() => {
   const handleRepoSelect = (e) => {
     const repoName = e.target.value;
     const selectedRepo = projectInfo.repositories.find(r => r.name === repoName);
-    
+
     if (selectedRepo) {
-      setProjectInfo(prev => ({ 
-        ...prev, 
+      setProjectInfo(prev => ({
+        ...prev,
         selectedRepo: repoName,
         name: selectedRepo.name,
         description: selectedRepo.description || '',
@@ -124,20 +124,20 @@ useEffect(() => {
     // In a real implementation, this would connect to Okto wallet
     // For now, we'll simulate a successful connection
     setLoading(true);
-    
+
     try {
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 1000));
-      
+
       // If we already have a GitHub connection, go straight to repo selection
       console.log("Checking GitHub in connectToOkto...");
       console.log("profileContract exists:", !!profileContract);
-      
+
       if (profileContract) {
         console.log("Getting wallet GitHub info in connectToOkto...");
         const [username, verified, timestamp] = await profileContract.getWalletGitHubInfo(account);
         console.log("GitHub info in connectToOkto:", { username, verified: !!verified, timestamp });
-        
+
         if (verified && username) {
           console.log("GitHub is verified in connectToOkto, moving to step 2");
           await fetchUserRepositories(username);
@@ -151,7 +151,7 @@ useEffect(() => {
         console.log("No profileContract in connectToOkto");
         setStep(1.5);
       }
-      
+
       setLoading(false);
     } catch (error) {
       console.error('Error connecting to Okto:', error);
@@ -176,14 +176,14 @@ useEffect(() => {
 
     try {
       const OAUTH_SERVER_URL = process.env.REACT_APP_OAUTH_SERVER_URL || 'http://localhost:3001';
-      
+
       // Get the selected repository details
       const repo = projectInfo.repositories.find(r => r.name === projectInfo.selectedRepo);
-      
+
       if (!repo) {
         throw new Error('Selected repository not found');
       }
-      
+
       // Register the project
       const response = await axios.post(
         `${OAUTH_SERVER_URL}/api/projects/register`,
@@ -198,7 +198,7 @@ useEffect(() => {
         },
         { withCredentials: true }
       );
-      
+
       if (response.data && response.data.success) {
         // Navigate to project dashboard
         navigate(`/projects/${response.data.projectId}`);
@@ -222,33 +222,30 @@ useEffect(() => {
             Register your open source project to create bounties from GitHub issues
           </p>
         </div>
-        
+
         {/* Progress Steps */}
         <div className="px-6 pt-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex flex-col items-center">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
-              }`}>1</div>
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                }`}>1</div>
               <span className="text-xs mt-1">Connect Wallet</span>
             </div>
             <div className={`h-1 flex-1 mx-2 ${step > 1 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
             <div className="flex flex-col items-center">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
-              }`}>2</div>
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                }`}>2</div>
               <span className="text-xs mt-1">Connect GitHub</span>
             </div>
             <div className={`h-1 flex-1 mx-2 ${step > 2 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
             <div className="flex flex-col items-center">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${
-                step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
-              }`}>3</div>
+              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+                }`}>3</div>
               <span className="text-xs mt-1">Configure Project</span>
             </div>
           </div>
         </div>
-        
+
         <div className="p-6">
           {/* Step 1: Connect Okto */}
           {step === 1 && (
@@ -256,17 +253,16 @@ useEffect(() => {
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
                 <h2 className="text-lg font-semibold text-blue-800">Connect Your Okto Wallet</h2>
                 <p className="mt-2 text-sm text-blue-600">
-                  Okto is a web3 wallet that lets you manage project tokens and distribute bounties 
-                  to contributors based on their GitHub profile scores.
+                  Okto is a web3 wallet that lets you manage project tokens and distribute bounties
+                  to contributors based on their ShadowBounty scores.
                 </p>
               </div>
-              
+
               <button
                 onClick={connectToOkto}
                 disabled={loading}
-                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none ${
-                  loading ? 'opacity-70 cursor-not-allowed' : ''
-                }`}
+                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
               >
                 {loading ? (
                   <>
@@ -285,7 +281,7 @@ useEffect(() => {
                   </>
                 )}
               </button>
-              
+
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                   {error}
@@ -293,7 +289,7 @@ useEffect(() => {
               )}
             </div>
           )}
-          
+
           {/* Step 1.5: Connect GitHub if needed */}
           {step === 1.5 && (
             <div className="space-y-4">
@@ -303,13 +299,12 @@ useEffect(() => {
                   Connect your GitHub account to select repositories for bounty creation.
                 </p>
               </div>
-              
+
               <button
                 onClick={connectToGitHub}
                 disabled={loading}
-                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none ${
-                  loading ? 'opacity-70 cursor-not-allowed' : ''
-                }`}
+                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
               >
                 {loading ? (
                   <>
@@ -328,7 +323,7 @@ useEffect(() => {
                   </>
                 )}
               </button>
-              
+
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                   {error}
@@ -336,7 +331,7 @@ useEffect(() => {
               )}
             </div>
           )}
-          
+
           {/* Step 2: Select GitHub Repository */}
           {step === 2 && (
             <div className="space-y-4">
@@ -346,7 +341,7 @@ useEffect(() => {
                   Choose a GitHub repository to create bounties from issues. You must have admin access to the repository.
                 </p>
               </div>
-              
+
               {loading ? (
                 <div className="flex justify-center py-8">
                   <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -382,27 +377,26 @@ useEffect(() => {
                           >
                             <option value="">-- Select a repository --</option>
                             {projectInfo.repositories.map((repo) => (
-                              <option 
-                                key={repo.id} 
+                              <option
+                                key={repo.id}
                                 value={repo.name}
                                 disabled={connectedRepos.includes(repo.id.toString())}
                               >
-                                {repo.name} {repo.private ? '(Private)' : '(Public)'} 
+                                {repo.name} {repo.private ? '(Private)' : '(Public)'}
                                 {connectedRepos.includes(repo.id.toString()) ? ' - Already Connected' : ''}
                               </option>
                             ))}
                           </select>
                         </div>
                       </div>
-                      
+
                       <div className="flex justify-end">
                         <button
                           type="button"
                           onClick={() => setStep(3)}
                           disabled={!projectInfo.selectedRepo}
-                          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none ${
-                            !projectInfo.selectedRepo ? 'opacity-50 cursor-not-allowed' : ''
-                          }`}
+                          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none ${!projectInfo.selectedRepo ? 'opacity-50 cursor-not-allowed' : ''
+                            }`}
                         >
                           Next: Configure Project
                         </button>
@@ -411,7 +405,7 @@ useEffect(() => {
                   )}
                 </>
               )}
-              
+
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                   {error}
@@ -419,7 +413,7 @@ useEffect(() => {
               )}
             </div>
           )}
-          
+
           {/* Step 3: Configure Project */}
           {step === 3 && (
             <div className="space-y-4">
@@ -429,7 +423,7 @@ useEffect(() => {
                   Provide additional details about your project that will be shown to contributors.
                 </p>
               </div>
-              
+
               <form className="space-y-4">
                 <div>
                   <label htmlFor="name" className="block text-sm font-medium text-gray-700">
@@ -444,7 +438,7 @@ useEffect(() => {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                     Description
@@ -459,7 +453,7 @@ useEffect(() => {
                     placeholder="Brief description of your project"
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="website" className="block text-sm font-medium text-gray-700">
                     Website URL (Optional)
@@ -474,7 +468,7 @@ useEffect(() => {
                     placeholder="https://your-project-website.com"
                   />
                 </div>
-                
+
                 <div>
                   <label htmlFor="githubUrl" className="block text-sm font-medium text-gray-700">
                     GitHub URL
@@ -488,7 +482,7 @@ useEffect(() => {
                     className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-50 sm:text-sm"
                   />
                 </div>
-                
+
                 <div className="flex justify-between pt-4">
                   <button
                     type="button"
@@ -497,14 +491,13 @@ useEffect(() => {
                   >
                     Back
                   </button>
-                  
+
                   <button
                     type="button"
                     onClick={registerProject}
                     disabled={loading || !projectInfo.name}
-                    className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none ${
-                      (loading || !projectInfo.name) ? 'opacity-50 cursor-not-allowed' : ''
-                    }`}
+                    className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none ${(loading || !projectInfo.name) ? 'opacity-50 cursor-not-allowed' : ''
+                      }`}
                   >
                     {loading ? (
                       <>
@@ -520,7 +513,7 @@ useEffect(() => {
                   </button>
                 </div>
               </form>
-              
+
               {error && (
                 <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
                   {error}

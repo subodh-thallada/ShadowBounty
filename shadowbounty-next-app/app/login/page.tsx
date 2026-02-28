@@ -31,8 +31,8 @@ export default function LoginPage() {
     <div className="flex items-center justify-center min-h-screen bg-background">
       <Card className="w-[350px]">
         <CardHeader>
-          <CardTitle>Login to Open Muster</CardTitle>
-          <CardDescription>Enter your credentials to access Open Muster</CardDescription>
+          <CardTitle>Login to ShadowBounty</CardTitle>
+          <CardDescription>Enter your credentials to access ShadowBounty</CardDescription>
         </CardHeader>
         <form onSubmit={handleSubmit}>
           <CardContent>

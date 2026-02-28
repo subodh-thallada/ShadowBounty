@@ -23,7 +23,7 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
         <div className="flex items-center space-x-2">
           <Link to="/" className="flex items-center">
             <FaGithub className="text-gray-900 text-2xl mr-2" />
-            <span className="text-xl font-bold text-gray-900">Muster</span>
+            <span className="text-xl font-bold text-gray-900">ShadowBounty</span>
           </Link>
         </div>
 

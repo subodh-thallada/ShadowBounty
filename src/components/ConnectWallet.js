@@ -136,7 +136,7 @@ const ConnectWallet = ({ onConnect }) => {
                 // when you're ready to implement the full Polkadot integration
                 /*
                 const subwallet = window.injectedWeb3['subwallet-js'];
-                const extension = await subwallet.enable('GitHub Profile Score');
+                const extension = await subwallet.enable('ShadowBounty');
                 const accounts = await extension.accounts.get();
                 
                 if (accounts && accounts.length > 0) {

@@ -10,7 +10,7 @@ export default function Home() {
       <header className="border-b">
         <div className="container flex h-16 items-center justify-between">
           <div className="flex items-center gap-2">
-            <span className="font-bold text-xl">Open Muster</span>
+            <span className="font-bold text-xl">ShadowBounty</span>
           </div>
           <nav className="flex items-center gap-4">
             <Link href="/bounties" className="text-sm font-medium hover:underline">
@@ -38,7 +38,7 @@ export default function Home() {
       <footer className="border-t py-6">
         <div className="container flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Open Muster. All rights reserved.
+            © {new Date().getFullYear()} ShadowBounty. All rights reserved.
           </div>
           <div className="flex items-center gap-4">
             <Link href="/terms" className="text-sm text-muted-foreground hover:underline">

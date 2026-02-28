@@ -30,54 +30,54 @@ export function AppSidebar({ className, items, ...props }: SidebarProps) {
 
   const defaultItems = isCompany
     ? [
-        {
-          href: "/dashboard/company",
-          title: "Overview",
-          icon: <LayoutDashboard className="mr-2 h-4 w-4" />,
-        },
-        {
-          href: "/dashboard/company/bounties",
-          title: "My Bounties",
-          icon: <Trophy className="mr-2 h-4 w-4" />,
-        },
-        {
-          href: "/dashboard/company/submissions",
-          title: "Submissions",
-          icon: <FileCode className="mr-2 h-4 w-4" />,
-        },
-        {
-          href: "/dashboard/company/developers",
-          title: "Developers",
-          icon: <Users className="mr-2 h-4 w-4" />,
-        },
-        {
-          href: "/dashboard/company/settings",
-          title: "Settings",
-          icon: <Settings className="mr-2 h-4 w-4" />,
-        },
-      ]
+      {
+        href: "/dashboard/company",
+        title: "Overview",
+        icon: <LayoutDashboard className="mr-2 h-4 w-4" />,
+      },
+      {
+        href: "/dashboard/company/bounties",
+        title: "My Bounties",
+        icon: <Trophy className="mr-2 h-4 w-4" />,
+      },
+      {
+        href: "/dashboard/company/submissions",
+        title: "Submissions",
+        icon: <FileCode className="mr-2 h-4 w-4" />,
+      },
+      {
+        href: "/dashboard/company/developers",
+        title: "Developers",
+        icon: <Users className="mr-2 h-4 w-4" />,
+      },
+      {
+        href: "/dashboard/company/settings",
+        title: "Settings",
+        icon: <Settings className="mr-2 h-4 w-4" />,
+      },
+    ]
     : [
-        {
-          href: "/dashboard/developer",
-          title: "Overview",
-          icon: <LayoutDashboard className="mr-2 h-4 w-4" />,
-        },
-        {
-          href: "/dashboard/developer/bounties",
-          title: "Find Bounties",
-          icon: <Trophy className="mr-2 h-4 w-4" />,
-        },
-        {
-          href: "/dashboard/developer/submissions",
-          title: "My Submissions",
-          icon: <FileCode className="mr-2 h-4 w-4" />,
-        },
-        {
-          href: "/dashboard/developer/settings",
-          title: "Settings",
-          icon: <Settings className="mr-2 h-4 w-4" />,
-        },
-      ]
+      {
+        href: "/dashboard/developer",
+        title: "Overview",
+        icon: <LayoutDashboard className="mr-2 h-4 w-4" />,
+      },
+      {
+        href: "/dashboard/developer/bounties",
+        title: "Find Bounties",
+        icon: <Trophy className="mr-2 h-4 w-4" />,
+      },
+      {
+        href: "/dashboard/developer/submissions",
+        title: "My Submissions",
+        icon: <FileCode className="mr-2 h-4 w-4" />,
+      },
+      {
+        href: "/dashboard/developer/settings",
+        title: "Settings",
+        icon: <Settings className="mr-2 h-4 w-4" />,
+      },
+    ]
 
   const navItems = items || defaultItems
 
@@ -86,7 +86,7 @@ export function AppSidebar({ className, items, ...props }: SidebarProps) {
       <SidebarHeader className="p-4">
         <Link href="/" className="flex items-center space-x-2">
           <Trophy className="h-6 w-6 text-neon-blue" />
-          <span className="text-lg font-bold text-neon-blue">Open Muster</span>
+          <span className="text-lg font-bold text-neon-blue">ShadowBounty</span>
         </Link>
       </SidebarHeader>
       <SidebarContent>

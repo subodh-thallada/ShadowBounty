@@ -519,7 +519,7 @@ function App() {
           </main>
 
           <footer className="py-6 text-center text-gray-400 text-sm border-t border-gray-800">
-            <p>© {new Date().getFullYear()} GitHub Profile Score - Web3 App</p>
+            <p>© {new Date().getFullYear()} ShadowBounty</p>
           </footer>
         </div>
       </Router>
