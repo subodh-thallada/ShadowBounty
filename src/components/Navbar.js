@@ -1,11 +1,15 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FaGithub, FaWallet, FaBars, FaTimes } from 'react-icons/fa';
+import { useUnlink } from '@unlink-xyz/react';
+import UnlinkWallet from './UnlinkWallet';
 
 const Navbar = ({ account, walletType, onDisconnect, username, verified, navItems = [] }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isWalletModalOpen, setIsWalletModalOpen] = useState(false);
   const location = useLocation();
-  
+  const { walletExists } = useUnlink();
+
   // Truncate Ethereum address for display
   const truncateAddress = (address) => {
     if (!address) return '';
@@ -13,71 +17,80 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
   };
 
   return (
-<nav className="bg-white border-b border-gray-200 py-4 px-6 shadow-sm">
-  <div className="container mx-auto flex justify-between items-center">
-    {/* Logo and site name */}
-    <div className="flex items-center space-x-2">
-      <Link to="/" className="flex items-center">
-        <FaGithub className="text-gray-900 text-2xl mr-2" />
-        <span className="text-xl font-bold text-gray-900">Muster</span>
-      </Link>
-    </div>
-
-    {/* Desktop Navigation Links */}
-    <div className="hidden md:flex items-center space-x-8">
-      {navItems.map((item, index) => (
-        <Link 
-          key={index}
-          to={item.path}
-          className={`text-sm font-medium transition-colors 
-            ${location.pathname === item.path 
-              ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' 
-              : 'text-gray-600 hover:text-indigo-600'}`}
-        >
-          {item.label}
-        </Link>
-      ))}
-    </div>
-    
-    {/* Wallet Status */}
-    <div className="hidden md:flex items-center space-x-4">
-      {account ? (
-        <div className="flex items-center">
-          {/* Verification badge */}
-          {verified && (
-            <div className="flex items-center mr-4 bg-gray-100 rounded-full py-1 px-3">
-              <FaGithub className="text-gray-700 mr-2" />
-              <span className="text-sm text-gray-700">{username}</span>
-            </div>
-          )}
-          
-          {/* Wallet info */}
-          <div className="flex items-center bg-gray-100 rounded-full py-1 px-3">
-            <FaWallet className="text-gray-700 mr-2" />
-            <span className="text-sm text-gray-700">{truncateAddress(account)}</span>
-          </div>
-          
-          {/* Disconnect button */}
-          <button 
-            onClick={onDisconnect}
-            className="ml-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
-          >
-            Disconnect
-          </button>
+    <nav className="bg-white border-b border-gray-200 py-4 px-6 shadow-sm">
+      <div className="container mx-auto flex justify-between items-center">
+        {/* Logo and site name */}
+        <div className="flex items-center space-x-2">
+          <Link to="/" className="flex items-center">
+            <FaGithub className="text-gray-900 text-2xl mr-2" />
+            <span className="text-xl font-bold text-gray-900">Muster</span>
+          </Link>
         </div>
-      ) : (
-        <Link 
-          to="/" 
-          className="bg-indigo-600 text-white font-medium rounded-full py-2 px-4 hover:bg-indigo-700 transition-colors"
-        >
-          Connect Wallet
-        </Link>
-      )}
-    </div>
-        
+
+        {/* Desktop Navigation Links */}
+        <div className="hidden md:flex items-center space-x-8">
+          {navItems.map((item, index) => (
+            <Link
+              key={index}
+              to={item.path}
+              className={`text-sm font-medium transition-colors 
+            ${location.pathname === item.path
+                  ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1'
+                  : 'text-gray-600 hover:text-indigo-600'}`}
+            >
+              {item.label}
+            </Link>
+          ))}
+        </div>
+
+        {/* Wallet Status */}
+        <div className="hidden md:flex items-center space-x-4">
+          {account ? (
+            <div className="flex items-center">
+              {/* Verification badge */}
+              {verified && (
+                <div className="flex items-center mr-4 bg-gray-100 rounded-full py-1 px-3">
+                  <FaGithub className="text-gray-700 mr-2" />
+                  <span className="text-sm text-gray-700">{username}</span>
+                </div>
+              )}
+
+              {/* Wallet info */}
+              <div className="flex items-center bg-gray-100 rounded-full py-1 px-3">
+                <FaWallet className="text-gray-700 mr-2" />
+                <span className="text-sm text-gray-700">{truncateAddress(account)}</span>
+              </div>
+
+              {/* Private Wallet button */}
+              <button
+                onClick={() => setIsWalletModalOpen(true)}
+                className="ml-2 flex items-center bg-indigo-50 text-indigo-700 rounded-full py-1 px-3 text-sm hover:bg-indigo-100 transition-colors font-medium border border-indigo-200"
+              >
+                <FaWallet className="mr-1.5 h-3 w-3" />
+                {walletExists ? 'Private Options' : 'Setup Private Wallet'}
+              </button>
+
+              {/* Disconnect button */}
+              <button
+                onClick={onDisconnect}
+                className="ml-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
+              >
+                Disconnect
+              </button>
+            </div>
+          ) : (
+            <Link
+              to="/"
+              className="bg-indigo-600 text-white font-medium rounded-full py-2 px-4 hover:bg-indigo-700 transition-colors"
+            >
+              Connect Wallet
+            </Link>
+          )}
+        </div>
+
         {/* Mobile menu button */}
         <div className="md:hidden">
-          <button 
+          <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="text-white focus:outline-none"
           >
@@ -89,19 +102,19 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
           </button>
         </div>
       </div>
-      
+
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden bg-black border-t border-gray-800 mt-4 pt-2 pb-4 px-6">
           {/* Nav Links */}
           <div className="space-y-4 mb-6">
             {navItems.map((item, index) => (
-              <Link 
+              <Link
                 key={index}
                 to={item.path}
                 className={`block text-base font-medium
-                  ${location.pathname === item.path 
-                    ? 'text-white' 
+                  ${location.pathname === item.path
+                    ? 'text-white'
                     : 'text-gray-400 hover:text-white'}`}
                 onClick={() => setIsMenuOpen(false)}
               >
@@ -109,7 +122,7 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
               </Link>
             ))}
           </div>
-          
+
           {/* Wallet Status on Mobile */}
           {account ? (
             <div className="space-y-3">
@@ -119,13 +132,13 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
                   <span className="text-sm text-white">{username}</span>
                 </div>
               )}
-              
+
               <div className="flex items-center bg-gray-800 rounded-md p-2">
                 <FaWallet className="text-white mr-2" />
                 <span className="text-sm text-white">{truncateAddress(account)}</span>
               </div>
-              
-              <button 
+
+              <button
                 onClick={onDisconnect}
                 className="w-full text-sm text-center py-2 text-gray-400 border border-gray-800 rounded-md hover:text-white transition-colors"
               >
@@ -133,8 +146,8 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
               </button>
             </div>
           ) : (
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="block w-full text-center bg-white text-black font-medium rounded-md py-2 hover:bg-gray-200 transition-colors"
               onClick={() => setIsMenuOpen(false)}
             >
@@ -143,6 +156,13 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
           )}
         </div>
       )}
+
+      {/* Unlink Wallet Modal */}
+      <UnlinkWallet
+        isOpen={isWalletModalOpen}
+        onClose={() => setIsWalletModalOpen(false)}
+        userAddress={account}
+      />
     </nav>
   );
 };

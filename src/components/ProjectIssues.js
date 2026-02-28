@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import BountyModal from './BountyModal';
 import { ethers } from 'ethers';
+import { useUnlink, useWithdraw } from '@unlink-xyz/react';
 
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
@@ -26,26 +27,31 @@ const ProjectIssues = ({ account }) => {
   const [issuesLoading, setIssuesLoading] = useState(false);
   const [error, setError] = useState(null);
   const [bountyMap, setBountyMap] = useState({});
-  
+
   // Bounty creation state
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [showBountyModal, setShowBountyModal] = useState(false);
   const [creatingBounty, setCreatingBounty] = useState(false);
 
+  // Unlink integration
+  const [useUnlinkForBounty, setUseUnlinkForBounty] = useState(false);
+  const { walletExists, balances, ready: unlinkReady } = useUnlink();
+  const { withdraw } = useWithdraw();
+
   const OAUTH_SERVER_URL = process.env.REACT_APP_OAUTH_SERVER_URL || 'http://localhost:3001';
 
   const fetchProject = async () => {
     if (!projectId) return;
-    
+
     setLoading(true);
     setError(null);
-    
+
     try {
       const response = await axios.get(
         `${OAUTH_SERVER_URL}/api/projects/${projectId}`,
         { withCredentials: true }
       );
-      
+
       if (response.data && response.data.success) {
         setProject(response.data.project);
         // After loading project, fetch issues
@@ -65,20 +71,20 @@ const ProjectIssues = ({ account }) => {
 
   const fetchIssues = async (projectData) => {
     if (!projectData) return;
-    
+
     setIssuesLoading(true);
-    
+
     try {
       const repoFullName = `${projectData.repositoryOwner}/${projectData.repositoryName}`;
-      
+
       const response = await axios.get(
         `${OAUTH_SERVER_URL}/api/github/issues/${projectData.repositoryOwner}/${projectData.repositoryName}`,
-        { 
+        {
           withCredentials: true,
           params: { state: 'open' }
         }
       );
-      
+
       if (response.data && response.data.issues) {
         setIssues(response.data.issues);
       } else {
@@ -93,14 +99,14 @@ const ProjectIssues = ({ account }) => {
     }
   };
 
-  
+
   const fetchBounties = async (projectId) => {
     try {
       const response = await axios.get(
         `${OAUTH_SERVER_URL}/api/bounties/project/${projectId}`,
         { withCredentials: true }
       );
-      
+
       if (response.data && response.data.success) {
         // Create a map of issue number to bounty
         const map = {};
@@ -138,6 +144,7 @@ const ProjectIssues = ({ account }) => {
     }
 
     setSelectedIssue(issue);
+    setUseUnlinkForBounty(walletExists); // Default to true if wallet exists
     setShowBountyModal(true);
   };
 
@@ -146,41 +153,41 @@ const ProjectIssues = ({ account }) => {
       alert("Please connect your wallet before creating a bounty");
       return;
     }
-    
+
     setCreatingBounty(true);
-    
+
     try {
       // 1. Get web3 provider and signer
       const provider = new ethers.providers.Web3Provider(window.ethereum);
       const signer = provider.getSigner();
-      
+
       // Get current network information
       const network = await provider.getNetwork();
       console.log("Creating bounty on chain ID:", network.chainId);
-      
+
       // 2. Connect to bounty contract
       const bountyContract = new ethers.Contract(
         BOUNTY_CONTRACT_ADDRESS,
         BOUNTY_ABI,
         signer
       );
-      
+
       // 3. Get the payment token address
       const tokenAddress = await bountyContract.paymentToken();
       console.log("Payment token address:", tokenAddress);
-      
+
       // Check if the token address is valid
       const code = await provider.getCode(tokenAddress);
       if (code === '0x') {
         console.warn("Token address doesn't contain code. This might be using native ETH instead.");
-        
+
         // Check native balance instead of token balance
         const balance = await provider.getBalance(account);
-        
+
         if (balance.lt(ethers.utils.parseEther(bountyData.amount))) {
           throw new Error(`Insufficient ETH balance. You need at least ${bountyData.amount} ETH`);
         }
-        
+
         // Skip token approval since we're using native ETH
         console.log("Creating bounty using native ETH...");
       } else {
@@ -190,15 +197,15 @@ const ProjectIssues = ({ account }) => {
           ERC20_ABI,
           signer
         );
-        
+
         // 5. Get token info with fallbacks for non-standard tokens
         let tokenSymbol = 'TOKENS';
         let tokenDecimals = 18; // Default to 18 decimals like ETH
-        
+
         try {
           tokenSymbol = await tokenContract.symbol();
           console.log(`Using token: ${tokenSymbol} (${tokenAddress})`);
-          
+
           // Try to get token decimals
           try {
             tokenDecimals = await tokenContract.decimals();
@@ -209,55 +216,87 @@ const ProjectIssues = ({ account }) => {
         } catch (error) {
           console.warn("Could not get token symbol, using generic name instead:", error.message);
         }
-        
+
         // Parse amount with the correct number of decimals
         // If we couldn't get decimals, use parseEther (which is parseUnits with 18 decimals)
         const parsedAmount = ethers.utils.parseUnits(bountyData.amount, tokenDecimals);
         console.log(`Parsed amount with ${tokenDecimals} decimals: ${parsedAmount.toString()}`);
-        
-        // 6. Check user's token balance with fallback for non-standard tokens
-        try {
-          const balance = await tokenContract.balanceOf(account);
-          
-          if (balance.lt(parsedAmount)) {
-            throw new Error(`Insufficient ${tokenSymbol} balance. You need at least ${bountyData.amount} ${tokenSymbol}`);
+
+        if (useUnlinkForBounty) {
+          // --- UNLINK PRIVATE FUNDING FLOW ---
+          if (!unlinkReady || !walletExists) {
+            throw new Error("Unlink private wallet is not ready or doesn't exist. Please create one first.");
           }
-          
-          // 7. Check allowance with fallback
+
+          // Check Unlink private balance (ignoring case for token checks)
+          const privateBalance = balances ? balances[tokenAddress] : null;
+
+          if (!privateBalance || privateBalance < parsedAmount.toBigInt()) {
+            throw new Error(`Insufficient private ${tokenSymbol} balance in your Unlink wallet. You need at least ${bountyData.amount} ${tokenSymbol}. Please deposit funds first.`);
+          }
+
+          console.log(`Sending ${bountyData.amount} ${tokenSymbol} from Unlink private wallet to Bounty Contract...`);
+          alert('Preparing private funding transaction. Please wait while we generate the zero-knowledge proof...');
+
           try {
-            const allowance = await tokenContract.allowance(account, BOUNTY_CONTRACT_ADDRESS);
-            
-            if (allowance.lt(parsedAmount)) {
-              // 8. Need to approve tokens first
-              console.log(`Approving ${bountyData.amount} ${tokenSymbol} for the bounty contract...`);
-              
-              try {
-                const approveTx = await tokenContract.approve(
-                  BOUNTY_CONTRACT_ADDRESS,
-                  ethers.constants.MaxUint256 // Approve max amount to avoid future approvals
-                );
-                
-                // Show approval progress
-                alert(`Please confirm the approval transaction in your wallet. This lets the contract use your ${tokenSymbol} tokens.`);
-                await approveTx.wait();
-                console.log("Approval successful!");
-              } catch (approvalError) {
-                console.error("Approval failed:", approvalError);
-                throw new Error(`Failed to approve tokens: ${approvalError.message}`);
-              }
-            }
-          } catch (allowanceError) {
-            console.warn("Could not check allowance, proceeding anyway:", allowanceError.message);
+            // Withdraw tokens from Unlink directly to the bounty contract
+            await withdraw([{
+              token: tokenAddress,
+              amount: parsedAmount.toBigInt(),
+              recipient: BOUNTY_CONTRACT_ADDRESS
+            }]);
+
+            console.log("Private funding successful!");
+          } catch (unlinkError) {
+            console.error("Unlink private funding failed:", unlinkError);
+            throw new Error(`Private funding failed: ${unlinkError.message}`);
           }
-        } catch (balanceError) {
-          console.warn("Could not check token balance:", balanceError.message);
-          alert("Warning: Could not verify your token balance. The transaction might fail if you don't have enough tokens.");
+        } else {
+          // --- METAMASK PUBLIC FUNDING FLOW ---
+          // 6. Check user's token balance with fallback for non-standard tokens
+          try {
+            const balance = await tokenContract.balanceOf(account);
+
+            if (balance.lt(parsedAmount)) {
+              throw new Error(`Insufficient ${tokenSymbol} balance. You need at least ${bountyData.amount} ${tokenSymbol}`);
+            }
+
+            // 7. Check allowance with fallback
+            try {
+              const allowance = await tokenContract.allowance(account, BOUNTY_CONTRACT_ADDRESS);
+
+              if (allowance.lt(parsedAmount)) {
+                // 8. Need to approve tokens first
+                console.log(`Approving ${bountyData.amount} ${tokenSymbol} for the bounty contract...`);
+
+                try {
+                  const approveTx = await tokenContract.approve(
+                    BOUNTY_CONTRACT_ADDRESS,
+                    ethers.constants.MaxUint256 // Approve max amount to avoid future approvals
+                  );
+
+                  // Show approval progress
+                  alert(`Please confirm the approval transaction in your wallet. This lets the contract use your ${tokenSymbol} tokens.`);
+                  await approveTx.wait();
+                  console.log("Approval successful!");
+                } catch (approvalError) {
+                  console.error("Approval failed:", approvalError);
+                  throw new Error(`Failed to approve tokens: ${approvalError.message}`);
+                }
+              }
+            } catch (allowanceError) {
+              console.warn("Could not check allowance, proceeding anyway:", allowanceError.message);
+            }
+          } catch (balanceError) {
+            console.warn("Could not check token balance:", balanceError.message);
+            alert("Warning: Could not verify your token balance. The transaction might fail if you don't have enough tokens.");
+          }
         }
       }
-      
+
       // 9. Now create the bounty
       console.log("Creating bounty with amount:", bountyData.amount, "and difficulty:", bountyData.difficultyLevel);
-      
+
       // Pass the Wei amount as a string to ensure it's handled correctly
       const response = await axios.post(
         `${OAUTH_SERVER_URL}/api/bounties/create`,
@@ -274,12 +313,12 @@ const ProjectIssues = ({ account }) => {
         },
         { withCredentials: true }
       );
-      
+
       if (response.data && response.data.success) {
         alert(`Bounty created successfully! Transaction: ${response.data.txHash}`);
         setShowBountyModal(false);
         setSelectedIssue(null);
-        
+
         // Refresh bounties
         fetchBounties(projectId);
       } else {
@@ -360,13 +399,13 @@ const ProjectIssues = ({ account }) => {
               className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
             >
               <svg className="h-4 w-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
               </svg>
               View on GitHub
             </a>
           </div>
         </div>
-        
+
         {/* Project Info */}
         <div className="mt-6 border-t border-gray-200 pt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
@@ -387,12 +426,11 @@ const ProjectIssues = ({ account }) => {
       {/* Issues Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-xl font-semibold text-gray-800">Open Issues</h2>
-        <button 
+        <button
           onClick={handleRefreshIssues}
           disabled={issuesLoading}
-          className={`inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md bg-white hover:bg-gray-50 ${
-            issuesLoading ? 'opacity-50 cursor-not-allowed' : ''
-          }`}
+          className={`inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md bg-white hover:bg-gray-50 ${issuesLoading ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
         >
           {issuesLoading ? (
             <>
@@ -445,7 +483,7 @@ const ProjectIssues = ({ account }) => {
           <div className="divide-y divide-gray-200">
             {issues.map(issue => {
               const hasBounty = bountyMap[issue.number];
-              
+
               return (
                 <div key={issue.id} className="p-6 hover:bg-gray-50">
                   <div className="flex items-start">
@@ -457,15 +495,15 @@ const ProjectIssues = ({ account }) => {
                     </div>
                     <div className="ml-3 flex-1">
                       <div className="flex justify-between">
-                        <a 
-                          href={issue.html_url} 
+                        <a
+                          href={issue.html_url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-base font-semibold text-blue-600 hover:text-blue-800"
                         >
                           {issue.title}
                         </a>
-                        
+
                         {hasBounty ? (
                           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             <svg className="-ml-0.5 mr-1.5 h-3 w-3 text-green-400" fill="currentColor" viewBox="0 0 24 24">
@@ -487,20 +525,20 @@ const ProjectIssues = ({ account }) => {
                           )
                         )}
                       </div>
-                      
+
                       <div className="mt-1 text-sm text-gray-700 line-clamp-2">
                         {issue.body ? issue.body.substring(0, 150) + (issue.body.length > 150 ? '...' : '') : 'No description'}
                       </div>
-                      
+
                       <div className="mt-2 flex flex-wrap items-center text-xs text-gray-500">
                         <span className="mr-3">#{issue.number}</span>
                         <span className="mr-3">Opened {formatDate(issue.created_at)}</span>
                         <span className="mr-3">by {issue.user.login}</span>
-                        
+
                         {issue.labels && issue.labels.length > 0 && (
                           <div className="flex flex-wrap mt-2">
                             {issue.labels.map(label => (
-                              <span 
+                              <span
                                 key={label.id}
                                 className="mr-2 mb-2 px-2 py-0.5 rounded-full text-xs"
                                 style={{
@@ -535,14 +573,72 @@ const ProjectIssues = ({ account }) => {
 
       {/* Bounty Creation Modal */}
       {showBountyModal && selectedIssue && (
-        <BountyModal
-          issue={selectedIssue}
-          isOpen={showBountyModal}
-          onClose={() => setShowBountyModal(false)}
-          onSubmit={handleBountySubmit}
-          isSubmitting={creatingBounty}
-          projectId={projectId}
-        />
+        <div className="fixed inset-0 z-[60] overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 transition-opacity" onClick={() => setShowBountyModal(false)}>
+              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+            </div>
+            <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+            <div className="inline-block relative overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <div className="absolute top-0 right-0 pt-4 pr-4">
+                <button
+                  onClick={() => setShowBountyModal(false)}
+                  className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                >
+                  <span className="sr-only">Close</span>
+                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+
+              <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="sm:flex sm:items-start">
+                  <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
+                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                      Create Bounty for #{selectedIssue.number}
+                    </h3>
+
+                    {walletExists && (
+                      <div className="mb-6 bg-indigo-50 border border-indigo-100 rounded-lg p-4">
+                        <label className="flex items-center cursor-pointer">
+                          <div className="relative">
+                            <input
+                              type="checkbox"
+                              className="sr-only"
+                              checked={useUnlinkForBounty}
+                              onChange={() => setUseUnlinkForBounty(!useUnlinkForBounty)}
+                            />
+                            <div className={`block w-10 h-6 rounded-full transition-colors ${useUnlinkForBounty ? 'bg-indigo-600' : 'bg-gray-300'}`}></div>
+                            <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${useUnlinkForBounty ? 'transform translate-x-4' : ''}`}></div>
+                          </div>
+                          <div className="ml-3 text-sm font-medium text-gray-900">
+                            Fund Privately (via Unlink)
+                          </div>
+                        </label>
+                        <p className="mt-2 text-xs text-gray-500 ml-13">
+                          {useUnlinkForBounty
+                            ? "Your funding source will remain entirely private. The tokens will be withdrawn from your Unlink wallet into the bounty contract."
+                            : "Your funding source will be public on the blockchain via MetaMask."}
+                        </p>
+                      </div>
+                    )}
+
+                    <BountyModal
+                      issue={selectedIssue}
+                      isOpen={true}
+                      onClose={() => setShowBountyModal(false)}
+                      onSubmit={handleBountySubmit}
+                      isSubmitting={creatingBounty}
+                      projectId={projectId}
+                      isInline={true}
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
