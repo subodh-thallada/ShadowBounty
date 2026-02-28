@@ -1,0 +1,23 @@
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant OAuth Server
+    participant ZK Prover
+    participant zkVerify
+    participant Smart Contract
+    
+    User->>Frontend: Connect wallet & Authorize GitHub
+    Frontend->>OAuth Server: Request private repo access
+    OAuth Server->>Frontend: Return private repo metadata
+    
+    Frontend->>ZK Prover: Generate proofs for private repo data
+    Note over ZK Prover: 1. RiscZero ZKVM for code metrics<br>2. Noir Hyperplonk for activity proof<br>3. Groth16 for ownership verification
+    ZK Prover->>Frontend: Return multiple ZK proofs
+    
+    Frontend->>zkVerify: Submit proofs for verification
+    zkVerify->>Frontend: Return verification results
+    
+    Frontend->>Smart Contract: Store verification results & enhanced score
+    Smart Contract->>Frontend: Confirmation
+    
+    Frontend->>User: Display enhanced profile with ZK badges

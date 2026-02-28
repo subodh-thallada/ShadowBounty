@@ -1,0 +1,7 @@
+{
+  "network": "monad_testnet",
+  "bountyContract": "0x45263C618C6f815A4810624C2453D3252AE67Bc5",
+  "profileScoreContract": "0x8e809AbbB369113D7964916a24Aa215649B30CaB",
+  "paymentToken": "0x647d7B7C6DCF5d8102dF3C6af5B3C9138911Dcf1",
+  "deploymentTime": "2026-02-28T20:47:05.210Z"
+}
