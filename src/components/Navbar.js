@@ -17,13 +17,13 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
   };
 
   return (
-    <nav className="bg-white border-b border-gray-200 py-4 px-6 shadow-sm">
+    <nav className="bg-black border-b border-zinc-800 py-4 px-6 shadow-sm">
       <div className="container mx-auto flex justify-between items-center">
         {/* Logo and site name */}
         <div className="flex items-center space-x-2">
           <Link to="/" className="flex items-center">
-            <FaGithub className="text-gray-900 text-2xl mr-2" />
-            <span className="text-xl font-bold text-gray-900">ShadowBounty</span>
+            <FaGithub className="text-white text-2xl mr-2" />
+            <span className="text-xl font-bold text-white">ShadowBounty</span>
           </Link>
         </div>
 
@@ -35,8 +35,8 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
               to={item.path}
               className={`text-sm font-medium transition-colors 
             ${location.pathname === item.path
-                  ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1'
-                  : 'text-gray-600 hover:text-indigo-600'}`}
+                  ? 'text-white border-b-2 border-white pb-1'
+                  : 'text-gray-400 hover:text-white'}`}
             >
               {item.label}
             </Link>
@@ -49,22 +49,22 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
             <div className="flex items-center">
               {/* Verification badge */}
               {verified && (
-                <div className="flex items-center mr-4 bg-gray-100 rounded-full py-1 px-3">
-                  <FaGithub className="text-gray-700 mr-2" />
-                  <span className="text-sm text-gray-700">{username}</span>
+                <div className="flex items-center mr-4 bg-zinc-900 border border-zinc-800 rounded-sm py-1 px-3">
+                  <FaGithub className="text-gray-300 mr-2" />
+                  <span className="text-sm text-gray-300">{username}</span>
                 </div>
               )}
 
               {/* Wallet info */}
-              <div className="flex items-center bg-gray-100 rounded-full py-1 px-3">
-                <FaWallet className="text-gray-700 mr-2" />
-                <span className="text-sm text-gray-700">{truncateAddress(account)}</span>
+              <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-sm py-1 px-3">
+                <FaWallet className="text-gray-300 mr-2" />
+                <span className="text-sm text-gray-300">{truncateAddress(account)}</span>
               </div>
 
               {/* Private Wallet button */}
               <button
                 onClick={() => setIsWalletModalOpen(true)}
-                className="ml-2 flex items-center bg-indigo-50 text-indigo-700 rounded-full py-1 px-3 text-sm hover:bg-indigo-100 transition-colors font-medium border border-indigo-200"
+                className="ml-2 flex items-center bg-zinc-900 border border-zinc-700 text-white rounded-sm py-1 px-3 text-sm hover:bg-zinc-800 transition-colors font-medium hover:border-white"
               >
                 <FaWallet className="mr-1.5 h-3 w-3" />
                 {walletExists ? 'Private Options' : 'Setup Private Wallet'}
@@ -73,7 +73,7 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
               {/* Disconnect button */}
               <button
                 onClick={onDisconnect}
-                className="ml-2 text-sm text-gray-600 hover:text-indigo-600 transition-colors"
+                className="ml-2 text-sm text-gray-400 hover:text-white transition-colors"
               >
                 Disconnect
               </button>
@@ -81,7 +81,7 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
           ) : (
             <Link
               to="/"
-              className="bg-indigo-600 text-white font-medium rounded-full py-2 px-4 hover:bg-indigo-700 transition-colors"
+              className="bg-white text-black font-medium border border-transparent rounded-sm py-2 px-4 hover:bg-gray-200 transition-colors"
             >
               Connect Wallet
             </Link>

@@ -3,35 +3,35 @@ import React, { useState } from 'react';
 const ProofBadges = ({ proofs }) => {
   const [expandedProof, setExpandedProof] = useState(null);
 
-  // Special colors for each proof type
+  // Special colors for each proof type (dark theme)
   const badgeColors = {
     riscZero: {
-      bg: 'bg-blue-100',
-      text: 'text-blue-800',
-      border: 'border-blue-200',
-      hover: 'hover:bg-blue-200',
-      icon: 'text-blue-500'
+      bg: 'bg-blue-950/50',
+      text: 'text-blue-400',
+      border: 'border-blue-800',
+      hover: 'hover:border-blue-600',
+      icon: 'text-blue-400'
     },
     noir: {
-      bg: 'bg-purple-100',
-      text: 'text-purple-800',
-      border: 'border-purple-200',
-      hover: 'hover:bg-purple-200',
-      icon: 'text-purple-500'
+      bg: 'bg-purple-950/50',
+      text: 'text-purple-400',
+      border: 'border-purple-800',
+      hover: 'hover:border-purple-600',
+      icon: 'text-purple-400'
     },
     groth16: {
-      bg: 'bg-green-100',
-      text: 'text-green-800',
-      border: 'border-green-200',
-      hover: 'hover:bg-green-200',
-      icon: 'text-green-500'
+      bg: 'bg-green-950/50',
+      text: 'text-green-400',
+      border: 'border-green-800',
+      hover: 'hover:border-green-600',
+      icon: 'text-green-400'
     },
     fflonk: {
-      bg: 'bg-orange-100',
-      text: 'text-orange-800',
-      border: 'border-orange-200',
-      hover: 'hover:bg-orange-200',
-      icon: 'text-orange-500'
+      bg: 'bg-orange-950/50',
+      text: 'text-orange-400',
+      border: 'border-orange-800',
+      hover: 'hover:border-orange-600',
+      icon: 'text-orange-400'
     }
   };
 
@@ -125,28 +125,28 @@ const ProofBadges = ({ proofs }) => {
 
   return (
     <div className="mb-4">
-      <h3 className="text-sm font-medium text-gray-700 mb-2">ZK Proof Badges</h3>
+      <h3 className="text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">ZK Proof Badges</h3>
       <div className="flex flex-wrap gap-2">
         {proofs.map((proof, index) => {
           const colors = badgeColors[proof.proofType] || {
-            bg: 'bg-gray-100',
-            text: 'text-gray-800',
-            border: 'border-gray-200',
-            hover: 'hover:bg-gray-200'
+            bg: 'bg-zinc-900',
+            text: 'text-gray-400',
+            border: 'border-zinc-700',
+            hover: 'hover:border-gray-500'
           };
           
           return (
             <div key={index} className="relative">
               <button
                 onClick={() => setExpandedProof(expandedProof === index ? null : index)}
-                className={`${colors.bg} ${colors.text} ${colors.border} ${colors.hover} border rounded-full px-3 py-1 text-xs font-medium flex items-center transition-colors duration-200`}
+                className={`${colors.bg} ${colors.text} ${colors.border} ${colors.hover} border rounded-sm px-3 py-1 text-xs font-medium flex items-center transition-colors duration-200`}
               >
                 {getProofIcon(proof.proofType)}
                 <span className="ml-1">{getProofLabel(proof.proofType)}</span>
               </button>
               
               {expandedProof === index && (
-                <div className={`absolute z-10 mt-2 w-64 rounded-md shadow-lg ${colors.bg} ${colors.border} border p-3`}>
+                <div className={`absolute z-10 mt-2 w-64 rounded-sm ${colors.bg} ${colors.border} border p-3`}>
                   <div className="flex justify-between items-start">
                     <div className="flex items-center">
                       {getProofIcon(proof.proofType)}
@@ -156,7 +156,7 @@ const ProofBadges = ({ proofs }) => {
                     </div>
                     <button
                       onClick={() => setExpandedProof(null)}
-                      className="text-gray-400 hover:text-gray-300"
+                      className="text-gray-500 hover:text-white transition-colors"
                     >
                       <svg className="h-4 w-4" fill="currentColor" viewBox="0 0 20 20">
                         <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -164,7 +164,7 @@ const ProofBadges = ({ proofs }) => {
                     </button>
                   </div>
                   
-                  <p className="mt-2 text-xs text-gray-300">
+                  <p className="mt-2 text-xs text-gray-400">
                     {getProofDescription(proof.proofType)}
                   </p>
                   

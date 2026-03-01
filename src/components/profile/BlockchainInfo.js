@@ -24,37 +24,37 @@ const BlockchainInfo = ({ profileData, account }) => {
   };
 
   return (
-    <div className="border-t border-gray-200 p-6 bg-gray-50">
-      <h2 className="text-lg font-semibold text-gray-800 mb-4">Blockchain Information</h2>
+    <div className="border-t border-zinc-800 p-6 bg-zinc-950">
+      <h2 className="text-lg font-semibold text-white mb-4 font-sans">Blockchain Information</h2>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
         <div>
-          <span className="font-medium text-gray-500">Analyzed On:</span>
-          <p className="mt-1 text-gray-900">{formatDate(profileData.analyzedAt)}</p>
+          <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Analyzed On</span>
+          <p className="mt-1 text-white">{formatDate(profileData.analyzedAt)}</p>
         </div>
 
         <div>
-          <span className="font-medium text-gray-500">Analyzed By:</span>
-          <p className="mt-1 text-gray-900">
+          <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Analyzed By</span>
+          <p className="mt-1">
             <a
               href={`https://testnet.monadexplorer.com/address/${profileData.analyzedBy}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800"
+              className="text-gray-400 hover:text-white transition-colors"
             >
               {formatAddress(profileData.analyzedBy)}
               {account.toLowerCase() === profileData.analyzedBy.toLowerCase() &&
-                <span className="ml-2 text-xs bg-blue-100 text-blue-800 py-0.5 px-2 rounded-full">You</span>
+                <span className="ml-2 text-xs bg-zinc-800 text-white border border-zinc-700 py-0.5 px-2 rounded-sm">You</span>
               }
             </a>
           </p>
         </div>
 
         <div>
-          <span className="font-medium text-gray-500">Data Privacy:</span>
-          <p className="mt-1 text-gray-900">
+          <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Data Privacy</span>
+          <p className="mt-1">
             {profileData.includesPrivateRepos ? (
-              <span className="text-green-600 font-medium">
+              <span className="text-green-400 font-medium">
                 {profileData.hasZkVerification
                   ? "Includes private repositories (ZK verified)"
                   : "Includes private repositories"}

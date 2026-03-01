@@ -8,7 +8,7 @@ const BountyCreationModal = ({ issue, onClose, onSubmit }) => {
     e.preventDefault();
     onSubmit(bountyAmount, difficultyLevel);
   };
-  
+
   // Generate suggested amount based on difficulty
   const suggestedAmounts = {
     easy: 30,
@@ -16,7 +16,7 @@ const BountyCreationModal = ({ issue, onClose, onSubmit }) => {
     hard: 80,
     expert: 120
   };
-  
+
   const updateDifficulty = (level) => {
     setDifficultyLevel(level);
     setBountyAmount(suggestedAmounts[level]);
@@ -30,21 +30,21 @@ const BountyCreationModal = ({ issue, onClose, onSubmit }) => {
         </div>
 
         {/* Modal panel */}
-        <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+        <div className="inline-block align-bottom bg-zinc-950 border border-zinc-800 rounded-sm text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
           <form onSubmit={handleSubmit}>
-            <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div className="bg-zinc-950 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
               <div className="sm:flex sm:items-start">
                 <div className="mt-3 text-center sm:mt-0 sm:text-left w-full">
-                  <h3 className="text-lg leading-6 font-medium text-gray-900">
+                  <h3 className="text-lg leading-6 font-medium text-white">
                     Create Bounty for Issue #{issue.number}
                   </h3>
                   <div className="mt-2">
                     <p className="text-sm text-gray-300 mb-4">
                       {issue.title}
                     </p>
-                    
+
                     <div className="mb-4">
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
                         Difficulty Level
                       </label>
                       <div className="grid grid-cols-4 gap-2">
@@ -52,11 +52,13 @@ const BountyCreationModal = ({ issue, onClose, onSubmit }) => {
                           <button
                             key={level}
                             type="button"
-                            className={`py-2 px-3 text-sm font-medium rounded-md ${
-                              difficultyLevel === level
-                                ? 'bg-blue-600 text-white'
-                                : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                            }`}
+                            className={`py-2 px-3 text-sm font-medium rounded-sm border transition-colors ${difficultyLevel === level
+                                ? level === 'easy' ? 'bg-green-900/50 text-green-400 border-green-800' :
+                                  level === 'medium' ? 'bg-yellow-900/50 text-yellow-400 border-yellow-800' :
+                                    level === 'hard' ? 'bg-red-900/50 text-red-400 border-red-800' :
+                                      'bg-purple-900/50 text-purple-400 border-purple-800'
+                                : 'bg-zinc-900 text-gray-400 border-zinc-700 hover:bg-zinc-800 hover:text-white'
+                              }`}
                             onClick={() => updateDifficulty(level)}
                           >
                             {level.charAt(0).toUpperCase() + level.slice(1)}
@@ -64,57 +66,57 @@ const BountyCreationModal = ({ issue, onClose, onSubmit }) => {
                         ))}
                       </div>
                     </div>
-                    
+
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                      <label className="block text-sm font-medium text-gray-300 mb-2">
                         Bounty Amount (Tokens)
                       </label>
-                      <div className="mt-1 relative rounded-md shadow-sm">
+                      <div className="mt-1 relative rounded-sm shadow-sm">
                         <input
                           type="number"
                           value={bountyAmount}
                           onChange={(e) => setBountyAmount(Number(e.target.value))}
-                          className="focus:ring-blue-500 focus:border-blue-500 block w-full pl-7 pr-12 sm:text-sm border-gray-300 rounded-md"
+                          className="focus:ring-white focus:border-white block w-full pl-3 pr-16 py-2 sm:text-sm border-zinc-700 bg-zinc-900 text-white rounded-sm outline-none transition-colors"
                           placeholder="50"
                           min="10"
                           required
                         />
                         <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                          <span className="text-gray-500 sm:text-sm">
+                          <span className="text-gray-500 text-sm">
                             tokens
                           </span>
                         </div>
                       </div>
                     </div>
-                    
-                    <div className="mt-4 bg-blue-50 p-3 rounded-md">
-                      <h4 className="text-sm font-medium text-blue-800 mb-1">Contributor Score Requirements</h4>
-                      <p className="text-xs text-blue-600">
+
+                    <div className="mt-5 bg-zinc-900 border border-zinc-800 p-4 rounded-sm">
+                      <h4 className="text-sm font-medium text-gray-300 mb-2">Contributor Score Requirements</h4>
+                      <p className="text-xs text-gray-400">
                         Bounty will be available to contributors based on their profile score:
                       </p>
-                      <ul className="text-xs text-blue-600 mt-1 pl-5 list-disc">
-                        <li>Score 0-20: 10 tokens</li>
-                        <li>Score 20-40: 20 tokens</li>
-                        <li>Score 40-60: 40 tokens</li>
-                        <li>Score 60-80: 60 tokens</li>
-                        <li>Score 80-100: {bountyAmount} tokens (full amount)</li>
+                      <ul className="text-xs text-gray-400 mt-2 pl-5 list-disc space-y-1">
+                        <li>Score 0-20: <span className="text-white">10 tokens</span></li>
+                        <li>Score 20-40: <span className="text-white">20 tokens</span></li>
+                        <li>Score 40-60: <span className="text-white">40 tokens</span></li>
+                        <li>Score 60-80: <span className="text-white">60 tokens</span></li>
+                        <li>Score 80-100: <span className="text-white font-medium">{bountyAmount} tokens</span> (full amount)</li>
                       </ul>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
-            
-            <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+
+            <div className="bg-zinc-900 border-t border-zinc-800 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
               <button
                 type="submit"
-                className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm"
+                className="w-full inline-flex justify-center rounded-sm border border-transparent shadow-sm px-4 py-2 bg-white text-base font-medium text-black hover:bg-gray-200 focus:outline-none sm:ml-3 sm:w-auto sm:text-sm transition-colors"
               >
                 Create Bounty
               </button>
               <button
                 type="button"
-                className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm"
+                className="mt-3 w-full inline-flex justify-center rounded-sm border border-zinc-700 shadow-sm px-4 py-2 bg-zinc-950 text-base font-medium text-gray-300 hover:bg-zinc-800 focus:outline-none sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm transition-colors"
                 onClick={onClose}
               >
                 Cancel

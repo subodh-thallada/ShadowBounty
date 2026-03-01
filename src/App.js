@@ -354,7 +354,7 @@ function App() {
   return (
     <UnlinkProvider chain="monad-testnet" autoSync={true}>
       <Router>
-        <div className="min-h-screen bg-gray-50 text-gray-900">
+        <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
           <Navbar
             account={account}
             walletType={walletType}
@@ -517,10 +517,6 @@ function App() {
             </Routes>
 
           </main>
-
-          <footer className="py-6 text-center text-gray-400 text-sm border-t border-gray-800">
-            <p>© {new Date().getFullYear()} ShadowBounty</p>
-          </footer>
         </div>
       </Router>
     </UnlinkProvider>

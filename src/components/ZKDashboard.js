@@ -295,10 +295,10 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-      <div className="border-b border-gray-200 p-6">
+    <div className="bg-zinc-950 border border-zinc-800 rounded-sm shadow-sm overflow-hidden">
+      <div className="border-b border-zinc-800 p-6">
         <div className="flex justify-between items-center">
-          <h2 className="text-lg font-semibold text-gray-800">
+          <h2 className="text-lg font-semibold text-white">
             Zero-Knowledge Proofs
           </h2>
 
@@ -312,7 +312,7 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
           )}
         </div>
 
-        <p className="mt-2 text-sm text-gray-300">
+        <p className="mt-2 text-sm text-gray-400">
           Generate ZK proofs to include your private repository data without revealing sensitive information.
           These proofs are verified on the zkVerify blockchain to maintain data privacy.
         </p>
@@ -327,17 +327,17 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
         <div className="px-6 pt-4">
           <div className="mb-4">
             <div className="relative pt-1">
-              <div className="overflow-hidden h-2 text-xs flex rounded bg-gray-200">
+              <div className="overflow-hidden h-2 text-xs flex rounded-sm bg-zinc-900">
                 <div
-                  className={`shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${status === 'generating' ? 'bg-blue-500' :
-                      status === 'verifying' ? 'bg-purple-500' :
-                        'bg-green-500'
+                  className={`shadow-none flex flex-col text-center whitespace-nowrap text-zinc-950 justify-center ${status === 'generating' ? 'bg-white' :
+                    status === 'verifying' ? 'bg-gray-300' :
+                      'bg-gray-100'
                     }`}
                   style={{ width: `${progress}%` }}
                 ></div>
               </div>
             </div>
-            <div className="mt-2 flex justify-between text-xs text-gray-300">
+            <div className="mt-2 flex justify-between text-xs text-gray-400">
               <span>
                 {status === 'generating' ? 'Generating Proofs' :
                   status === 'verifying' ? 'Verifying on zkVerify' :
@@ -348,13 +348,13 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
           </div>
 
           {currentProof && (
-            <div className="flex items-center p-4 border border-gray-200 rounded-lg bg-gray-50 mb-4">
-              <div className={`animate-pulse mr-3 text-${currentProof.color}-500`}>
+            <div className="flex items-center p-4 border border-zinc-800 bg-zinc-900 rounded-sm mb-4">
+              <div className={`animate-pulse mr-3 text-white`}>
                 {currentProof.icon(`h-6 w-6`)}
               </div>
               <div>
-                <div className="font-medium text-gray-800">{currentProof.name}</div>
-                <div className="text-sm text-gray-300">
+                <div className="font-medium text-white">{currentProof.name}</div>
+                <div className="text-sm text-gray-400">
                   {status === 'generating' ? 'Generating proof...' : 'Verifying on zkVerify blockchain...'}
                 </div>
               </div>
@@ -365,15 +365,15 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
             {verificationResults.map((result, index) => (
               <div
                 key={index}
-                className="flex items-center justify-between p-3 border rounded-lg bg-green-50 border-green-200"
+                className="flex items-center justify-between p-3 border rounded-sm bg-green-950/20 border-green-900"
               >
                 <div className="flex items-center">
-                  {result.icon(`h-5 w-5 text-${result.color}-500 mr-2`)}
-                  <span className="font-medium text-gray-800">{result.name}</span>
+                  {result.icon(`h-5 w-5 text-green-500 mr-2`)}
+                  <span className="font-medium text-white">{result.name}</span>
                 </div>
 
                 <div>
-                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium border bg-green-950/50 text-green-400 border-green-900">
                     <svg className="mr-1 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                     </svg>
@@ -385,13 +385,13 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
           </div>
 
           {status === 'storing' && (
-            <div className="mb-4 p-4 border rounded-lg bg-blue-50 border-blue-200">
+            <div className="mb-4 p-4 border rounded-sm bg-zinc-900 border-zinc-800">
               <div className="flex items-center">
-                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                <span className="font-medium text-blue-700">Storing proof verification results on the blockchain...</span>
+                <span className="font-medium text-gray-300">Storing proof verification results on the blockchain...</span>
               </div>
             </div>
           )}
@@ -401,29 +401,29 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
       {/* Success state */}
       {status === 'success' && proofs.length > 0 && (
         <div className="p-6">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+          <div className="bg-green-950/30 border border-green-900 rounded-sm p-4 mb-6">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="h-5 w-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-green-800">
+                <h3 className="text-sm font-medium text-green-400">
                   All Proofs Successfully Verified
                 </h3>
-                <div className="mt-2 text-sm text-green-700">
+                <div className="mt-2 text-sm text-gray-300">
                   <p>Your private repository data has been verified using zero-knowledge proofs on the zkVerify blockchain.</p>
                 </div>
 
                 {contractStatus === 'success' && blockchainTxHash && (
                   <div className="mt-2">
-                    <span className="text-xs text-green-600">Blockchain Transaction: </span>
+                    <span className="text-xs text-gray-400">Blockchain Transaction: </span>
                     <a
                       href={`https://testnet.monadexplorer.com/tx/${blockchainTxHash}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-xs text-blue-600 hover:text-blue-800 font-mono"
+                      className="text-xs text-white hover:underline transition-all font-mono"
                     >
                       {blockchainTxHash.substring(0, 10)}...{blockchainTxHash.substring(blockchainTxHash.length - 8)}
                     </a>
@@ -431,7 +431,7 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
                 )}
 
                 {contractStatus === 'error' && (
-                  <div className="mt-2 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs text-yellow-700">
+                  <div className="mt-2 p-2 bg-yellow-950/20 border border-yellow-900 rounded-sm text-xs text-yellow-500">
                     Note: Proofs were verified on zkVerify but couldn't be stored on the application blockchain.
                   </div>
                 )}
@@ -446,24 +446,24 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
       {/* Error state */}
       {status === 'error' && (
         <div className="p-6">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <div className="bg-red-950/30 border border-red-900 rounded-sm p-4">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-red-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="h-5 w-5 text-red-500" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                 </svg>
               </div>
               <div className="ml-3">
-                <h3 className="text-sm font-medium text-red-800">
+                <h3 className="text-sm font-medium text-red-400">
                   Error Generating Proofs
                 </h3>
-                <div className="mt-2 text-sm text-red-700">
+                <div className="mt-2 text-sm text-red-300">
                   <p>{error || 'An unexpected error occurred. Please try again.'}</p>
                 </div>
                 <div className="mt-4">
                   <button
                     onClick={generateAllProofs}
-                    className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-red-700 bg-red-100 hover:bg-red-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                    className="inline-flex items-center px-3 py-2 border border-zinc-700 text-sm leading-4 font-medium rounded-sm text-gray-300 bg-zinc-900 hover:bg-zinc-800 transition-colors"
                   >
                     Try Again
                   </button>
@@ -479,7 +479,7 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
         <div className="p-6">
           <button
             onClick={generateAllProofs}
-            className="w-full inline-flex justify-center items-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="w-full inline-flex justify-center items-center py-2 px-4 border border-zinc-700 rounded-sm shadow-sm text-sm font-medium text-black bg-white hover:bg-gray-200 transition-colors"
           >
             Generate All ZK Proofs
           </button>
@@ -488,23 +488,23 @@ const ZKDashboard = ({ privateRepoData, contract, account, username, onProofsGen
             {proofTypes.map(proofType => (
               <div
                 key={proofType.id}
-                className="border border-gray-200 rounded p-3 bg-gray-50"
+                className="border border-zinc-800 rounded-sm p-3 bg-zinc-900"
               >
                 <div className="flex items-center">
-                  {proofType.icon(`h-5 w-5 text-${proofType.color}-500 mr-2`)}
-                  <span className="font-medium text-gray-800">{proofType.name}</span>
+                  {proofType.icon(`h-5 w-5 text-white mr-2`)}
+                  <span className="font-medium text-white">{proofType.name}</span>
                 </div>
-                <p className="mt-1 text-xs text-gray-300">{proofType.description}</p>
+                <p className="mt-1 text-xs text-gray-400">{proofType.description}</p>
               </div>
             ))}
           </div>
         </div>
       )}
 
-      <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
-        <div className="text-xs text-gray-500">
+      <div className="bg-zinc-900 px-6 py-4 border-t border-zinc-800">
+        <div className="text-xs text-gray-400">
           <p>
-            <span className="font-medium">Privacy Note:</span> Zero-knowledge proofs enable the verification of private repository metrics without exposing any sensitive data from your private repositories.
+            <span className="font-medium text-white">Privacy Note:</span> Zero-knowledge proofs enable the verification of private repository metrics without exposing any sensitive data from your private repositories.
           </p>
         </div>
       </div>

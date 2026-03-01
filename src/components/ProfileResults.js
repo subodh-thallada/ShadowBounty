@@ -13,7 +13,7 @@ import BlockchainInfo from './profile/BlockchainInfo';
 import ProfileActions from './profile/ProfileActions';
 
 // Services
-import {GitHubProfileAnalyzer} from '../services/githubAnalyzer';
+import { GitHubProfileAnalyzer } from '../services/githubAnalyzer';
 const OAUTH_SERVER_URL = process.env.REACT_APP_OAUTH_SERVER_URL;
 
 const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => {
@@ -30,7 +30,7 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
   const [storing, setStoring] = useState(false);
   const [storingError, setStoringError] = useState('');
   const [storageComplete, setStorageComplete] = useState(false);
-  
+
   const normalizedUsername = username ? username.toLowerCase() : "";
 
   // Check if this is the verified user's own profile
@@ -39,7 +39,7 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
   useEffect(() => {
     if (contract) {
       console.log("[CONTRACT_CHECK] Contract ready:", contract.address);
-      console.log("[CONTRACT_CHECK] Available methods:", 
+      console.log("[CONTRACT_CHECK] Available methods:",
         Object.keys(contract.functions)
           .filter(key => !key.includes('('))
           .sort()
@@ -64,12 +64,12 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
         chainId: network.chainId,
         name: network.name
       });
-      
+
       // Check the target contract
       const code = await provider.getCode(contract.address);
       const isContract = code !== '0x';
       console.log("[NETWORK] Contract exists at address:", isContract);
-      
+
       return { network, isContract };
     } catch (error) {
       console.error("[NETWORK] Error checking network:", error);
@@ -80,13 +80,13 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
   const fetchProfileData = async () => {
     console.log("[PROFILE_RESULTS] Fetching profile data for:", normalizedUsername);
     if (!contract || !normalizedUsername) return;
-    
+
     try {
       setLoading(true);
       setError('');
 
       await checkNetwork();
-      
+
       console.log("[PROFILE_RESULTS] Contract instance obtained:", !!contract);
       console.log("[PROFILE_RESULTS] Contract address:", contract.address);
 
@@ -101,13 +101,13 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
         exists: data.exists,
         hasZkVerification: data.hasZkVerification
       });
-      
+
       if (!data.exists) {
         setError(`No data found for GitHub user ${username}`);
         setLoading(false);
         return;
       }
-      
+
       // Format the data
       const formattedData = {
         username: data.username,
@@ -127,7 +127,7 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
         analyzedBy: data.analyzedBy,
         includesPrivateRepos: data.includesPrivateRepos
       };
-      
+
       console.log("[PROFILE_RESULTS] Formatted profile data:", formattedData);
       setProfileData(formattedData);
     } catch (error) {
@@ -148,23 +148,23 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
         verifiedAt: result.verifiedAt
       }))
     );
-    
+
     // Update profile data to indicate it has ZK verification
     setProfileData(prev => ({
       ...prev,
       hasZkVerification: true
     }));
-    
+
     // Optionally refresh data from blockchain
     fetchProfileData();
   };
 
   const storeProofsOnBlockchain = async (proofs) => {
     if (!contract || !username) return;
-    
+
     try {
       setStoring(true); // Add a state variable for this
-      
+
       // For each proof, call the smart contract
       for (const proof of proofs) {
         const tx = await contract.addZKProofVerification(
@@ -173,15 +173,15 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
           proof.verificationId,
           proof.txHash
         );
-        
+
         await tx.wait();
         console.log(`Stored ${proof.proofType} proof verification for ${normalizedUsername}`);
       }
-      
+
       // Update UI to show success
       setStoring(false);
       setStorageComplete(true);
-      
+
       // Refresh data
       fetchProfileData();
     } catch (error) {
@@ -193,7 +193,7 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
 
   const handleRecalculate = async (includePrivateRepos = false) => {
     if (!contract || !normalizedUsername) return;
-    
+
     try {
       setRecalculating(true);
       setError('');
@@ -202,7 +202,7 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
         // Check if wallet is verified for this GitHub account
         const [verifiedUsername, isVerified] = await contract.getWalletGitHubInfo(account);
         const normalizedVerifiedUsername = verifiedUsername.toLowerCase();
-        
+
         if (!isVerified || normalizedVerifiedUsername !== normalizedUsername) {
           setError(
             `Your wallet must be verified as the owner of GitHub account "${normalizedUsername}" to include private repositories. ` +
@@ -214,7 +214,7 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
       }
 
       console.log(`[ANALYZE] Starting analysis for ${normalizedUsername}, including private repos: ${includePrivateRepos}`);
-      console.log(`[ANALYZE] Using contract at address: ${contract.address}`);      
+      console.log(`[ANALYZE] Using contract at address: ${contract.address}`);
 
       // If including private repos, we need to fetch them through the OAuth server
       let privateRepoData = null;
@@ -239,7 +239,7 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
           return;
         }
       }
-      
+
       // Analyze GitHub profile
       const analyzer = new GitHubProfileAnalyzer();
       const analysis = await analyzer.analyze(normalizedUsername, privateRepoData);
@@ -257,7 +257,7 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
         recentActivity: analysis.metrics.recentActivity,
         includePrivateRepos
       });
-          
+
       // Store on blockchain
       const tx = await contract.addProfileScore(
         analysis.username,
@@ -271,14 +271,14 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
         analysis.metrics.recentActivity,
         includePrivateRepos
       );
-      
+
       console.log(`[ANALYZE] Transaction sent with hash: ${tx.hash}`);
 
-      console.log(`[ANALYZE] Waiting for transaction to be mined...`);      
+      console.log(`[ANALYZE] Waiting for transaction to be mined...`);
       const receipt = await tx.wait();
       console.log(`[ANALYZE] Transaction mined in block: ${receipt.blockNumber}`);
       console.log(`[ANALYZE] Gas used: ${receipt.gasUsed.toString()}`);
-      console.log(`[ANALYZE] Events emitted:`, receipt.events);      
+      console.log(`[ANALYZE] Events emitted:`, receipt.events);
 
       // Verify data was stored - fetch immediately after transaction
       console.log(`[ANALYZE] Verifying data was stored by fetching from chain...`);
@@ -305,15 +305,15 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
         analyzedBy: account,
         includesPrivateRepos: includePrivateRepos
       };
-      
+
       setProfileData(updatedData);
-      
+
       // Clear token after successful analysis
       if (includePrivateRepos) {
         setGithubToken(null);
         setShowTokenInput(false);
       }
-      
+
     } catch (error) {
       console.error('Error recalculating profile:', error);
       setError(`Error recalculating profile: ${error.message}`);
@@ -325,15 +325,16 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
   if (loading) {
     return <LoadingState message="Loading profile data..." />;
   }
-  
+
   if (error) {
     return <ErrorState error={error} />;
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      <div className="bg-white rounded-lg shadow-lg overflow-hidden">
-        <ProfileHeader 
+    <div className="max-w-3xl mx-auto mt-8">
+      <h1 className="text-3xl font-bold text-white mb-6 font-sans">Profile</h1>
+      <div className="bg-zinc-950 border border-zinc-800 rounded-sm shadow-sm overflow-hidden">
+        <ProfileHeader
           username={normalizedUsername}
           profileData={profileData}
           isOwnVerifiedProfile={isOwnVerifiedProfile}
@@ -342,9 +343,9 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
           setShowTokenInput={setShowTokenInput}
           showTokenInput={showTokenInput}
         />
-        
+
         {showTokenInput && (
-          <TokenInput 
+          <TokenInput
             account={account} // Pass the wallet address
             username={normalizedUsername} // Pass the username
             showZkProofSection={showZkProofSection}
@@ -365,19 +366,19 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
           />
         )}
 
-        <ScoreBreakdown 
-          profileData={profileData} 
+        <ScoreBreakdown
+          profileData={profileData}
           zkProofs={zkProofs}
         />
-        
-        <BlockchainInfo 
+
+        <BlockchainInfo
           profileData={profileData}
           account={account}
         />
       </div>
-      
-      <ProfileActions 
-        isVerified={isVerified} 
+
+      <ProfileActions
+        isVerified={isVerified}
         username={username}
       />
     </div>

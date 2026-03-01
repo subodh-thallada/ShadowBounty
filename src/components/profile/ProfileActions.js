@@ -6,15 +6,15 @@ const ProfileActions = ({ isVerified, username }) => {
     <div className="mt-6 flex flex-wrap gap-4 justify-center">
       <Link 
         to="/analyze" 
-        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="inline-flex items-center px-4 py-2 border border-white text-sm font-medium rounded-sm text-white hover:bg-white hover:text-black focus:outline-none transition-colors"
       >
         Analyze Another Profile
       </Link>
       
       {!isVerified && (
         <Link 
-          to="/verify" 
-          className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+          to="/connect-github" 
+          className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white bg-zinc-950 hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors"
         >
           Verify Your GitHub Account
         </Link>
@@ -24,7 +24,7 @@ const ProfileActions = ({ isVerified, username }) => {
         href={`https://github.com/${username}`} 
         target="_blank" 
         rel="noopener noreferrer" 
-        className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+        className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white bg-zinc-950 hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors"
       >
         View GitHub Profile
       </a>

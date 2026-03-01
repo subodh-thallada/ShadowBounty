@@ -18,25 +18,25 @@ const TokenInput = ({
   };
 
   return (
-    <div className="border-t border-gray-200 p-6 bg-gray-50">
-      <h2 className="text-lg font-semibold text-gray-800 mb-2">
+    <div className="border-t border-zinc-800 p-6 bg-zinc-950">
+      <h2 className="text-lg font-semibold text-white mb-2 font-sans">
         Include Private Repository Data
       </h2>
 
       {!isVerifiedForUsername ? (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 text-yellow-800 rounded-md">
+        <div className="mb-4 p-4 bg-yellow-950/30 border border-yellow-800 text-yellow-200 rounded-sm">
           <p className="text-sm">
             <span className="font-medium">Verification required:</span> To include private repositories, 
             your wallet must be verified as the owner of this GitHub account. Please reconnect GitHub to verify.
           </p>
         </div>
       ) : (
-        <p className="text-sm text-green-600 mb-4">
+        <p className="text-sm text-green-400 mb-4">
           ✓ Your wallet is verified for this GitHub account. You can include private repositories.
         </p>
       )}      
 
-      <p className="text-sm text-gray-300 mb-4">
+      <p className="text-sm text-gray-400 mb-4">
         Connect your GitHub account to include private repositories in your score calculation.
       </p>
       
@@ -49,11 +49,11 @@ const TokenInput = ({
               type="checkbox"
               checked={showZkProofSection}
               onChange={(e) => setShowZkProofSection(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+              className="h-4 w-4 rounded-sm border-zinc-600 bg-zinc-900 text-white focus:ring-white focus:ring-offset-0 focus:ring-offset-black focus:border-white"
             />
           </div>
           <div className="ml-3 text-sm">
-            <label htmlFor="use-zk" className="font-medium text-gray-700">
+            <label htmlFor="use-zk" className="font-medium text-white cursor-pointer">
               Use zero-knowledge proofs to protect private repo data
             </label>
             <p className="text-gray-500">
@@ -65,7 +65,7 @@ const TokenInput = ({
         <div className="flex justify-between">
           <button
             onClick={startGithubAuth}
-            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white bg-zinc-950 hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors"
           >
             Reconnect GitHub
           </button>
@@ -73,7 +73,7 @@ const TokenInput = ({
           <button
             onClick={() => handleRecalculate(true)}
             disabled={recalculating}
-            className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:bg-gray-300 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-4 py-2 border border-white text-sm font-medium rounded-sm text-white hover:bg-white hover:text-black focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-white"
           >
             {recalculating ? 'Processing...' : 'Include Private Repos'}
           </button>

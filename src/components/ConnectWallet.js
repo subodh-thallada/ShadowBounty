@@ -172,10 +172,10 @@ const ConnectWallet = ({ onConnect }) => {
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[80vh]">
-      <div className="bg-white p-8 rounded-lg shadow-lg max-w-md w-full text-center">
+      <div className="bg-zinc-950 p-8 rounded-sm shadow-sm border border-zinc-800 max-w-md w-full text-center">
         <div className="mb-6">
           <svg
-            className="h-16 w-16 mx-auto text-blue-600"
+            className="h-16 w-16 mx-auto text-white"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -189,9 +189,9 @@ const ConnectWallet = ({ onConnect }) => {
           </svg>
         </div>
 
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">Connect Your Wallet</h1>
+        <h1 className="text-2xl font-bold text-white mb-2">Connect Your Wallet</h1>
 
-        <p className="text-gray-300 mb-6">
+        <p className="text-gray-400 mb-6">
           Connect your wallet to analyze GitHub profiles and store results on the blockchain.
         </p>
 
@@ -200,10 +200,10 @@ const ConnectWallet = ({ onConnect }) => {
             <button
               key={wallet.id}
               onClick={() => connectWallet(wallet.id)}
-              className="w-full flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+              className="w-full flex items-center justify-between p-3 border border-zinc-700 bg-zinc-900 rounded-sm hover:bg-zinc-800 hover:border-white transition-colors"
             >
               <div className="flex items-center">
-                <div className="h-8 w-8 mr-3 flex items-center justify-center bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-8 w-8 mr-3 flex items-center justify-center bg-black rounded-sm border border-zinc-700 overflow-hidden">
                   <img
                     src={wallet.icon}
                     alt={wallet.name}
@@ -215,16 +215,16 @@ const ConnectWallet = ({ onConnect }) => {
                   />
                 </div>
                 <div className="text-left">
-                  <p className="font-medium text-gray-800">{wallet.name}</p>
-                  <p className="text-xs text-gray-500">{wallet.description}</p>
+                  <p className="font-medium text-white">{wallet.name}</p>
+                  <p className="text-xs text-gray-400">{wallet.description}</p>
                 </div>
               </div>
               {wallet.installed ? (
-                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">
+                <span className="text-xs bg-zinc-800 text-white px-2 py-1 rounded-sm border border-zinc-600">
                   Available
                 </span>
               ) : (
-                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                <span className="text-xs bg-zinc-950 text-gray-400 px-2 py-1 rounded-sm border border-zinc-800">
                   Install
                 </span>
               )}
@@ -234,10 +234,10 @@ const ConnectWallet = ({ onConnect }) => {
 
         {/* Error debugging section - only appears in development */}
         {process.env.NODE_ENV === 'development' && (
-          <div className="mt-8 border-t pt-4 text-left">
+          <div className="mt-8 border-t border-zinc-800 pt-4 text-left">
             <details>
               <summary className="cursor-pointer text-xs text-gray-500">Debug Info</summary>
-              <div className="mt-2 text-xs text-gray-300 bg-gray-50 p-3 rounded overflow-auto max-h-40">
+              <div className="mt-2 text-xs text-gray-400 bg-zinc-900 border border-zinc-800 p-3 rounded-sm overflow-auto max-h-40">
                 <p>ethereum available: {window.ethereum ? 'Yes' : 'No'}</p>
                 <p>injectedWeb3 available: {window.injectedWeb3 ? 'Yes' : 'No'}</p>
               </div>
@@ -246,8 +246,8 @@ const ConnectWallet = ({ onConnect }) => {
         )}
       </div>
 
-      <div className="mt-8 text-center text-gray-300 max-w-md">
-        <h2 className="font-semibold text-lg mb-2">Why Connect a Wallet?</h2>
+      <div className="mt-8 text-center text-gray-400 max-w-md">
+        <h2 className="font-semibold text-lg mb-2 text-white">Why Connect a Wallet?</h2>
         <p>
           Your wallet allows you to interact with the blockchain to store and retrieve
           GitHub profile analysis data in a decentralized way. Your wallet address serves as your

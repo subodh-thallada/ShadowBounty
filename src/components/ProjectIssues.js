@@ -354,15 +354,15 @@ const ProjectIssues = ({ account }) => {
   if (error) {
     return (
       <div className="max-w-5xl mx-auto px-4 py-8">
-        <div className="bg-red-50 border border-red-200 rounded-md p-6 text-center">
-          <svg className="mx-auto h-12 w-12 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div className="bg-red-950/50 border border-red-900 rounded-sm p-6 text-center">
+          <svg className="mx-auto h-12 w-12 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          <h3 className="mt-3 text-lg font-medium text-red-800">{error}</h3>
+          <h3 className="mt-3 text-lg font-medium text-red-500">{error}</h3>
           <div className="mt-6">
             <Link
               to="/projects"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200"
+              className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-gray-300 bg-zinc-900 hover:bg-zinc-800 transition-colors"
             >
               Back to Projects
             </Link>
@@ -379,16 +379,16 @@ const ProjectIssues = ({ account }) => {
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Project Header */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
+      <div className="bg-zinc-950 border border-zinc-800 rounded-sm shadow-sm p-6 mb-6">
         <div className="sm:flex sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">{project.name}</h1>
-            <p className="mt-1 text-sm text-gray-500">{project.description || "No description available"}</p>
+            <h1 className="text-2xl font-bold text-white">{project.name}</h1>
+            <p className="mt-1 text-sm text-gray-400">{project.description || "No description available"}</p>
           </div>
           <div className="mt-4 sm:mt-0">
             <Link
               to="/projects"
-              className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 mr-3"
+              className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-gray-300 bg-zinc-900 hover:bg-zinc-800 mr-3 transition-colors"
             >
               Back to Projects
             </Link>
@@ -396,7 +396,7 @@ const ProjectIssues = ({ account }) => {
               href={project.githubUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700"
+              className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm text-black bg-white hover:bg-gray-200 transition-colors"
             >
               <svg className="h-4 w-4 mr-1.5" fill="currentColor" viewBox="0 0 24 24">
                 <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
@@ -407,29 +407,29 @@ const ProjectIssues = ({ account }) => {
         </div>
 
         {/* Project Info */}
-        <div className="mt-6 border-t border-gray-200 pt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="mt-6 border-t border-zinc-800 pt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div>
             <h3 className="text-sm font-medium text-gray-500">Repository</h3>
-            <p className="mt-1 text-sm text-gray-900">{project.repositoryName}</p>
+            <p className="mt-1 text-sm text-white">{project.repositoryName}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-500">Owner</h3>
-            <p className="mt-1 text-sm text-gray-900">{project.repositoryOwner}</p>
+            <p className="mt-1 text-sm text-white">{project.repositoryOwner}</p>
           </div>
           <div>
             <h3 className="text-sm font-medium text-gray-500">Project ID</h3>
-            <p className="mt-1 text-sm text-gray-900">{project.id}</p>
+            <p className="mt-1 text-sm text-white">{project.id}</p>
           </div>
         </div>
       </div>
 
       {/* Issues Header */}
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold text-gray-800">Open Issues</h2>
+        <h2 className="text-xl font-semibold text-white">Open Issues</h2>
         <button
           onClick={handleRefreshIssues}
           disabled={issuesLoading}
-          className={`inline-flex items-center px-3 py-1.5 border border-gray-300 text-sm font-medium rounded-md bg-white hover:bg-gray-50 ${issuesLoading ? 'opacity-50 cursor-not-allowed' : ''
+          className={`inline-flex items-center px-3 py-1.5 border border-zinc-700 text-sm font-medium rounded-sm bg-zinc-900 text-gray-300 hover:bg-zinc-800 hover:text-white transition-colors ${issuesLoading ? 'opacity-50 cursor-not-allowed' : ''
             }`}
         >
           {issuesLoading ? (
@@ -452,25 +452,25 @@ const ProjectIssues = ({ account }) => {
       </div>
 
       {/* Issues List */}
-      <div className="bg-white shadow-sm rounded-lg overflow-hidden">
+      <div className="bg-zinc-950 border border-zinc-800 shadow-sm rounded-sm overflow-hidden">
         {issuesLoading && issues.length === 0 ? (
           <div className="py-12 text-center">
-            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mx-auto"></div>
-            <p className="mt-3 text-sm text-gray-500">Loading issues...</p>
+            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-white mx-auto"></div>
+            <p className="mt-3 text-sm text-gray-400">Loading issues...</p>
           </div>
         ) : issues.length === 0 ? (
           <div className="py-12 text-center">
-            <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="mx-auto h-12 w-12 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <h3 className="mt-2 text-sm font-medium text-gray-900">No open issues</h3>
-            <p className="mt-1 text-sm text-gray-500">This project doesn't have any open issues at the moment.</p>
+            <h3 className="mt-2 text-sm font-medium text-white">No open issues</h3>
+            <p className="mt-1 text-sm text-gray-400">This project doesn't have any open issues at the moment.</p>
             <div className="mt-6">
               <a
                 href={`${project.githubUrl}/issues/new`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700"
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm shadow-sm text-black bg-white hover:bg-gray-200 transition-colors"
               >
                 <svg className="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clipRule="evenodd" />
@@ -480,12 +480,12 @@ const ProjectIssues = ({ account }) => {
             </div>
           </div>
         ) : (
-          <div className="divide-y divide-gray-200">
+          <div className="divide-y divide-zinc-800">
             {issues.map(issue => {
               const hasBounty = bountyMap[issue.number];
 
               return (
-                <div key={issue.id} className="p-6 hover:bg-gray-50">
+                <div key={issue.id} className="p-6 hover:bg-zinc-900 transition-colors">
                   <div className="flex items-start">
                     <div className="flex-shrink-0 pt-1">
                       {/* Issue open icon */}
@@ -499,14 +499,14 @@ const ProjectIssues = ({ account }) => {
                           href={issue.html_url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-base font-semibold text-blue-600 hover:text-blue-800"
+                          className="text-base font-semibold text-white hover:underline transition-colors"
                         >
                           {issue.title}
                         </a>
 
                         {hasBounty ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <svg className="-ml-0.5 mr-1.5 h-3 w-3 text-green-400" fill="currentColor" viewBox="0 0 24 24">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium border bg-green-950/50 text-green-400 border-green-900">
+                            <svg className="-ml-0.5 mr-1.5 h-3 w-3 text-green-500" fill="currentColor" viewBox="0 0 24 24">
                               <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-3.5-8v2h7v-2h-7zm0-3v2h7v-2h-7zm0-3v2h7V8h-7z" />
                             </svg>
                             Bounty: {formatEth(hasBounty.amount)}
@@ -515,7 +515,7 @@ const ProjectIssues = ({ account }) => {
                           account && account.toLowerCase() === project.ownerAddress.toLowerCase() && (
                             <button
                               onClick={() => handleCreateBounty(issue)}
-                              className="inline-flex items-center px-2.5 py-1 border border-transparent text-xs font-medium rounded text-blue-700 bg-blue-100 hover:bg-blue-200"
+                              className="inline-flex items-center px-2.5 py-1 border border-zinc-700 text-xs font-medium rounded-sm text-white bg-zinc-900 hover:bg-zinc-800 hover:border-gray-500 transition-colors"
                             >
                               <svg className="-ml-0.5 mr-1.5 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
@@ -526,7 +526,7 @@ const ProjectIssues = ({ account }) => {
                         )}
                       </div>
 
-                      <div className="mt-1 text-sm text-gray-700 line-clamp-2">
+                      <div className="mt-1 text-sm text-gray-400 line-clamp-2">
                         {issue.body ? issue.body.substring(0, 150) + (issue.body.length > 150 ? '...' : '') : 'No description'}
                       </div>
 
@@ -540,11 +540,11 @@ const ProjectIssues = ({ account }) => {
                             {issue.labels.map(label => (
                               <span
                                 key={label.id}
-                                className="mr-2 mb-2 px-2 py-0.5 rounded-full text-xs"
+                                className="mr-2 mb-2 px-2 py-0.5 rounded-sm text-xs border"
                                 style={{
-                                  backgroundColor: `#${label.color}33`, // Add transparency
+                                  backgroundColor: `#${label.color}15`,
                                   color: `#${label.color}`,
-                                  border: `1px solid #${label.color}`
+                                  borderColor: `#${label.color}40`
                                 }}
                               >
                                 {label.name}
@@ -555,9 +555,9 @@ const ProjectIssues = ({ account }) => {
                       </div>
 
                       {hasBounty && (
-                        <div className="mt-3 pt-3 border-t border-gray-100">
-                          <div className="text-xs font-medium text-gray-700">
-                            <span className="mr-4">Bounty Status: <span className={`font-semibold ${hasBounty.status === 'OPEN' ? 'text-green-600' : 'text-blue-600'}`}>{hasBounty.status}</span></span>
+                        <div className="mt-3 pt-3 border-t border-zinc-800">
+                          <div className="text-xs font-medium text-gray-400">
+                            <span className="mr-4">Bounty Status: <span className={`font-semibold ${hasBounty.status === 'OPEN' ? 'text-green-500' : 'text-blue-500'}`}>{hasBounty.status}</span></span>
                             <span>Deadline: {new Date(parseInt(hasBounty.deadline) * 1000).toLocaleDateString()}</span>
                           </div>
                         </div>
@@ -576,14 +576,14 @@ const ProjectIssues = ({ account }) => {
         <div className="fixed inset-0 z-[60] overflow-y-auto">
           <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
             <div className="fixed inset-0 transition-opacity" onClick={() => setShowBountyModal(false)}>
-              <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
+              <div className="absolute inset-0 bg-black opacity-80 backdrop-blur-sm shadow-xl"></div>
             </div>
             <span className="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
-            <div className="inline-block relative overflow-hidden text-left align-bottom transition-all transform bg-white rounded-lg shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+            <div className="inline-block relative overflow-hidden text-left align-bottom transition-all transform bg-zinc-950 border border-zinc-800 rounded-sm shadow-xl sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
               <div className="absolute top-0 right-0 pt-4 pr-4">
                 <button
                   onClick={() => setShowBountyModal(false)}
-                  className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                  className="text-gray-500 hover:text-white focus:outline-none transition-colors"
                 >
                   <span className="sr-only">Close</span>
                   <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -595,12 +595,12 @@ const ProjectIssues = ({ account }) => {
               <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                 <div className="sm:flex sm:items-start">
                   <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                    <h3 className="text-lg leading-6 font-medium text-gray-900 mb-4">
+                    <h3 className="text-lg leading-6 font-medium text-white mb-4">
                       Create Bounty for #{selectedIssue.number}
                     </h3>
 
                     {walletExists && (
-                      <div className="mb-6 bg-indigo-50 border border-indigo-100 rounded-lg p-4">
+                      <div className="mb-6 bg-zinc-900 border border-zinc-800 rounded-sm p-4 shadow-sm">
                         <label className="flex items-center cursor-pointer">
                           <div className="relative">
                             <input
@@ -612,11 +612,11 @@ const ProjectIssues = ({ account }) => {
                             <div className={`block w-10 h-6 rounded-full transition-colors ${useUnlinkForBounty ? 'bg-indigo-600' : 'bg-gray-300'}`}></div>
                             <div className={`dot absolute left-1 top-1 bg-white w-4 h-4 rounded-full transition-transform ${useUnlinkForBounty ? 'transform translate-x-4' : ''}`}></div>
                           </div>
-                          <div className="ml-3 text-sm font-medium text-gray-900">
+                          <div className="ml-3 text-sm font-medium text-white">
                             Fund Privately (via Unlink)
                           </div>
                         </label>
-                        <p className="mt-2 text-xs text-gray-500 ml-13">
+                        <p className="mt-2 text-xs text-gray-400 ml-13">
                           {useUnlinkForBounty
                             ? "Your funding source will remain entirely private. The tokens will be withdrawn from your Unlink wallet into the bounty contract."
                             : "Your funding source will be public on the blockchain via MetaMask."}

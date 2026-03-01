@@ -37,40 +37,40 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
   const fetchIssues = async () => {
     setLoading(true);
     setError('');
-    
+
     const repoInfo = getRepoInfo();
     if (!repoInfo) {
       setError('Invalid repository URL');
       setLoading(false);
       return;
     }
-    
+
     const { owner, repo } = repoInfo;
-    
+
     try {
       // Get GitHub access token from localStorage or your auth system
       const token = localStorage.getItem('github_access_token');
       const headers = token ? { 'Authorization': `token ${token}` } : {};
-      
+
       const response = await fetch(
         `https://api.github.com/repos/${owner}/${repo}/issues?state=${filter === 'all' ? 'all' : filter}&sort=created&direction=${sort === 'newest' ? 'desc' : 'asc'}`,
         { headers }
       );
-      
+
       if (!response.ok) {
         throw new Error(`GitHub API error: ${response.status}`);
       }
-      
+
       const data = await response.json();
-      
+
       // Filter out pull requests (they're also returned as issues by the API)
       const filteredIssues = data.filter(issue => !issue.pull_request);
-      
+
       setIssues(filteredIssues);
-      
+
       // Fetch bounty details for these issues from your smart contract
       await fetchBountyDetails(filteredIssues.map(issue => issue.number));
-      
+
       setLoading(false);
     } catch (err) {
       console.error('Error fetching issues:', err);
@@ -82,10 +82,10 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
   // Fetch bounty details from smart contract
   const fetchBountyDetails = async (issueNumbers) => {
     if (!contract || !projectId) return;
-    
+
     try {
       const bountyMap = {};
-      
+
       // For each issue, check if a bounty exists
       for (const issueNumber of issueNumbers) {
         try {
@@ -93,7 +93,7 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
             projectId,
             issueNumber.toString()
           );
-          
+
           if (bountyDetails && bountyDetails.exists) {
             bountyMap[issueNumber] = {
               amount: bountyDetails.amount, // Keep as BigNumber
@@ -108,7 +108,7 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
           console.warn(`Error fetching bounty for issue #${issueNumber}:`, err);
         }
       }
-      
+
       setBounties(bountyMap);
     } catch (err) {
       console.error('Error fetching bounty details:', err);
@@ -118,10 +118,10 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
   // Create a new bounty
   const createBounty = async (amount, difficultyLevel) => {
     if (!contract || !selectedIssue || !projectId) return;
-    
+
     try {
       const bountyAmount = ethers.utils.parseUnits(amount.toString(), 18);
-      
+
       const tx = await contract.createBounty(
         projectId,
         selectedIssue.number.toString(),
@@ -130,13 +130,13 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
         selectedIssue.title,
         selectedIssue.html_url
       );
-      
+
       await tx.wait();
-      
+
       // Refresh bounty data
       await fetchBountyDetails([selectedIssue.number]);
       setShowModal(false);
-      
+
       // Show success message
       alert(`Bounty created successfully for issue #${selectedIssue.number}`);
     } catch (err) {
@@ -148,8 +148,8 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
   // Filter issues based on search term
   const filteredIssues = issues.filter(issue => {
     return issue.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           issue.body?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-           issue.number.toString().includes(searchTerm);
+      issue.body?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      issue.number.toString().includes(searchTerm);
   });
 
   useEffect(() => {
@@ -159,51 +159,51 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
   }, [repositoryUrl, filter, sort, projectId, contract]);
 
   return (
-    <div className="bg-white shadow-md rounded-lg overflow-hidden">
+    <div className="bg-zinc-950 border border-zinc-800 shadow-sm rounded-sm overflow-hidden">
       {/* Header */}
-      <div className="bg-gray-50 py-4 px-6 border-b flex justify-between items-center">
-        <h2 className="text-xl font-semibold text-gray-800">GitHub Issues</h2>
+      <div className="bg-zinc-900 py-4 px-6 border-b border-zinc-800 flex justify-between items-center">
+        <h2 className="text-xl font-semibold text-white">GitHub Issues</h2>
         <div className="flex items-center space-x-2">
           <div>
-            <select 
-              value={filter} 
+            <select
+              value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="rounded-md border-gray-300 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="rounded-sm border-zinc-700 bg-zinc-950 text-white py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-white focus:border-white"
             >
-              <option value="all">All Issues</option>
-              <option value="open">Open Issues</option>
-              <option value="closed">Closed Issues</option>
+              <option value="all" className="bg-zinc-950">All Issues</option>
+              <option value="open" className="bg-zinc-950">Open Issues</option>
+              <option value="closed" className="bg-zinc-950">Closed Issues</option>
             </select>
           </div>
           <div>
-            <select 
-              value={sort} 
+            <select
+              value={sort}
               onChange={(e) => setSort(e.target.value)}
-              className="rounded-md border-gray-300 py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+              className="rounded-sm border-zinc-700 bg-zinc-950 text-white py-2 pl-3 pr-10 text-sm focus:outline-none focus:ring-white focus:border-white"
             >
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="most-commented">Most Commented</option>
+              <option value="newest" className="bg-zinc-950">Newest First</option>
+              <option value="oldest" className="bg-zinc-950">Oldest First</option>
+              <option value="most-commented" className="bg-zinc-950">Most Commented</option>
             </select>
           </div>
-          <button 
-            onClick={fetchIssues} 
-            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+          <button
+            onClick={fetchIssues}
+            className="inline-flex items-center px-3 py-2 border border-zinc-700 shadow-sm text-sm font-medium rounded-sm text-white bg-zinc-950 hover:bg-zinc-800 focus:outline-none"
           >
             Refresh
           </button>
         </div>
       </div>
-      
+
       {/* Search */}
-      <div className="p-4 border-b">
-        <div className="relative rounded-md shadow-sm">
+      <div className="p-4 border-b border-zinc-800">
+        <div className="relative rounded-sm shadow-sm">
           <input
             type="text"
             placeholder="Search issues..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="block w-full pr-10 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm border-gray-300 rounded-md py-2 px-3"
+            className="block w-full pr-10 focus:outline-none focus:ring-white focus:border-white sm:text-sm border-zinc-700 bg-zinc-900 text-white placeholder-gray-500 rounded-sm py-2 px-3"
           />
           <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
             <svg className="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -214,18 +214,18 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
       </div>
 
       {/* Issue List */}
-      <div className="divide-y divide-gray-200">
+      <div className="divide-y divide-zinc-800">
         {loading ? (
           <div className="p-6 text-center">
             <svg className="animate-spin h-8 w-8 mx-auto text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <p className="mt-2 text-gray-300">Loading issues...</p>
+            <p className="mt-2 text-gray-400">Loading issues...</p>
           </div>
         ) : error ? (
           <div className="p-6 text-center">
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div className="bg-red-950/50 border border-red-900 text-red-500 px-4 py-3 rounded-sm">
               {error}
             </div>
           </div>
@@ -235,7 +235,7 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
           </div>
         ) : (
           filteredIssues.map(issue => (
-            <div key={issue.id} className="p-6 hover:bg-gray-50">
+            <div key={issue.id} className="p-6 hover:bg-zinc-900 transition-colors">
               <div className="flex justify-between items-start">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center mb-1">
@@ -247,27 +247,27 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
                     <span className={`text-sm font-medium ${issue.state === 'open' ? 'text-green-500' : 'text-red-500'}`}>
                       {issue.state.charAt(0).toUpperCase() + issue.state.slice(1)}
                     </span>
-                    <span className="mx-2 text-gray-300">|</span>
-                    <span className="text-sm text-gray-500">
+                    <span className="mx-2 text-gray-600">|</span>
+                    <span className="text-sm text-gray-400">
                       #{issue.number}
                     </span>
-                    <span className="mx-2 text-gray-300">|</span>
-                    <span className="text-sm text-gray-500 flex items-center">
+                    <span className="mx-2 text-gray-600">|</span>
+                    <span className="text-sm text-gray-400 flex items-center">
                       <FaUsers className="mr-1" /> {issue.comments}
                     </span>
                   </div>
-                  
-                  <h3 className="text-lg font-medium text-gray-900 truncate">
+
+                  <h3 className="text-lg font-medium text-white truncate">
                     {issue.title}
                   </h3>
-                  
+
                   <p className="mt-1 text-sm text-gray-500">
                     Opened {new Date(issue.created_at).toLocaleDateString()} by {issue.user.login}
                   </p>
-                  
+
                   <div className="mt-2 flex flex-wrap gap-2">
                     {issue.labels.map(label => (
-                      <span 
+                      <span
                         key={label.id}
                         className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
                         style={{
@@ -282,23 +282,23 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
                     ))}
                   </div>
                 </div>
-                
+
                 <div className="ml-4">
                   {/* Show bounty details if it exists */}
                   {bounties[issue.number] ? (
-                    <div className="bg-green-50 rounded-md p-3 text-sm border border-green-200">
-                      <div className="font-semibold text-green-800 mb-1">
+                    <div className="bg-green-950/30 rounded-sm p-3 text-sm border border-green-900">
+                      <div className="font-semibold text-green-400 mb-1">
                         Bounty: {formatTokenAmount(bounties[issue.number].amount)}
                       </div>
-                      <div className="text-xs text-green-700">
+                      <div className="text-xs text-green-500">
                         Status: {bounties[issue.number].status}
                       </div>
-                      <div className="text-xs text-green-700">
+                      <div className="text-xs text-green-500">
                         Difficulty: {bounties[issue.number].difficultyLevel}
                       </div>
-                      <a 
+                      <a
                         href={`/bounties/${projectId}/${issue.number}`}
-                        className="mt-2 block text-xs text-blue-600 hover:text-blue-800"
+                        className="mt-2 block text-xs text-blue-400 hover:text-blue-300 hover:underline"
                       >
                         View Details →
                       </a>
@@ -309,7 +309,7 @@ const BountyList = ({ account, contract, projectId, repositoryUrl }) => {
                         setSelectedIssue(issue);
                         setShowModal(true);
                       }}
-                      className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none"
+                      className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm shadow-sm text-white bg-zinc-900 hover:bg-zinc-800 hover:border-white focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-zinc-950 focus:ring-white disabled:opacity-50 disabled:cursor-not-allowed"
                       disabled={issue.state !== 'open'}
                     >
                       Create Bounty

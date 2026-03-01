@@ -215,10 +215,10 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
 
   return (
     <div className="max-w-3xl mx-auto mt-8">
-      <div className="bg-white shadow-lg rounded-lg overflow-hidden">
-        <div className="p-6 border-b">
-          <h1 className="text-2xl font-bold text-gray-800">Open Source Project Onboarding</h1>
-          <p className="mt-2 text-gray-300">
+      <div className="bg-zinc-950 border border-zinc-800 shadow-sm rounded-sm overflow-hidden">
+        <div className="p-6 border-b border-zinc-800">
+          <h1 className="text-2xl font-bold text-white">Open Source Project Onboarding</h1>
+          <p className="mt-2 text-gray-400">
             Register your open source project to create bounties from GitHub issues
           </p>
         </div>
@@ -227,21 +227,21 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
         <div className="px-6 pt-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex flex-col items-center">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${step >= 1 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+              <div className={`h-8 w-8 rounded-sm flex items-center justify-center border ${step >= 1 ? 'bg-white text-black border-white' : 'bg-transparent text-gray-500 border-zinc-800'
                 }`}>1</div>
-              <span className="text-xs mt-1">Connect Wallet</span>
+              <span className="text-xs mt-1 text-gray-300">Connect Wallet</span>
             </div>
-            <div className={`h-1 flex-1 mx-2 ${step > 1 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+            <div className={`h-[1px] flex-1 mx-2 ${step > 1 ? 'bg-white' : 'bg-zinc-800'}`}></div>
             <div className="flex flex-col items-center">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${step >= 2 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+              <div className={`h-8 w-8 rounded-sm flex items-center justify-center border ${step >= 2 ? 'bg-white text-black border-white' : 'bg-transparent text-gray-500 border-zinc-800'
                 }`}>2</div>
-              <span className="text-xs mt-1">Connect GitHub</span>
+              <span className="text-xs mt-1 text-gray-300">Connect GitHub</span>
             </div>
-            <div className={`h-1 flex-1 mx-2 ${step > 2 ? 'bg-blue-600' : 'bg-gray-200'}`}></div>
+            <div className={`h-[1px] flex-1 mx-2 ${step > 2 ? 'bg-white' : 'bg-zinc-800'}`}></div>
             <div className="flex flex-col items-center">
-              <div className={`h-8 w-8 rounded-full flex items-center justify-center ${step >= 3 ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-500'
+              <div className={`h-8 w-8 rounded-sm flex items-center justify-center border ${step >= 3 ? 'bg-white text-black border-white' : 'bg-transparent text-gray-500 border-zinc-800'
                 }`}>3</div>
-              <span className="text-xs mt-1">Configure Project</span>
+              <span className="text-xs mt-1 text-gray-300">Configure Project</span>
             </div>
           </div>
         </div>
@@ -250,9 +250,9 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
           {/* Step 1: Connect Okto */}
           {step === 1 && (
             <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                <h2 className="text-lg font-semibold text-blue-800">Connect Your Okto Wallet</h2>
-                <p className="mt-2 text-sm text-blue-600">
+              <div className="bg-zinc-900 p-4 rounded-sm border border-zinc-800">
+                <h2 className="text-lg font-semibold text-white">Connect Your Okto Wallet</h2>
+                <p className="mt-2 text-sm text-gray-400">
                   Okto is a web3 wallet that lets you manage project tokens and distribute bounties
                   to contributors based on their ShadowBounty scores.
                 </p>
@@ -261,7 +261,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
               <button
                 onClick={connectToOkto}
                 disabled={loading}
-                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                className={`w-full flex justify-center items-center py-3 px-4 rounded-sm shadow-sm text-black font-medium bg-white hover:bg-gray-200 focus:outline-none ${loading ? 'opacity-70 cursor-not-allowed' : ''
                   }`}
               >
                 {loading ? (
@@ -283,7 +283,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
               </button>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                <div className="bg-red-950/50 border border-red-900 text-red-500 px-4 py-3 rounded-sm">
                   {error}
                 </div>
               )}
@@ -293,9 +293,9 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
           {/* Step 1.5: Connect GitHub if needed */}
           {step === 1.5 && (
             <div className="space-y-4">
-              <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
-                <h2 className="text-lg font-semibold text-blue-800">Connect Your GitHub Account</h2>
-                <p className="mt-2 text-sm text-blue-600">
+              <div className="bg-zinc-900 p-4 rounded-sm border border-zinc-800">
+                <h2 className="text-lg font-semibold text-white">Connect Your GitHub Account</h2>
+                <p className="mt-2 text-sm text-gray-400">
                   Connect your GitHub account to select repositories for bounty creation.
                 </p>
               </div>
@@ -303,7 +303,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
               <button
                 onClick={connectToGitHub}
                 disabled={loading}
-                className={`w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-white bg-gray-800 hover:bg-gray-900 focus:outline-none ${loading ? 'opacity-70 cursor-not-allowed' : ''
+                className={`w-full flex justify-center items-center py-3 px-4 rounded-sm border border-zinc-700 shadow-sm text-white bg-zinc-900 hover:bg-zinc-800 hover:border-white focus:outline-none ${loading ? 'opacity-70 cursor-not-allowed' : ''
                   }`}
               >
                 {loading ? (
@@ -316,7 +316,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                   </>
                 ) : (
                   <>
-                    <svg className="h-5 w-5 mr-2" fill="currentColor" viewBox="0 0 24 24">
+                    <svg className="h-5 w-5 mr-2 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
                     </svg>
                     Connect GitHub
@@ -325,7 +325,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
               </button>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                <div className="bg-red-950/50 border border-red-900 text-red-500 px-4 py-3 rounded-sm">
                   {error}
                 </div>
               )}
@@ -335,16 +335,16 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
           {/* Step 2: Select GitHub Repository */}
           {step === 2 && (
             <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-lg border border-green-100">
-                <h2 className="text-lg font-semibold text-green-800">Select Repository</h2>
-                <p className="mt-2 text-sm text-green-600">
+              <div className="bg-zinc-900 p-4 rounded-sm border border-zinc-800">
+                <h2 className="text-lg font-semibold text-white">Select Repository</h2>
+                <p className="mt-2 text-sm text-gray-400">
                   Choose a GitHub repository to create bounties from issues. You must have admin access to the repository.
                 </p>
               </div>
 
               {loading ? (
                 <div className="flex justify-center py-8">
-                  <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <svg className="animate-spin h-8 w-8 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
@@ -356,7 +356,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                       <p className="text-gray-500">No repositories found with admin access.</p>
                       <button
                         onClick={connectToGitHub}
-                        className="mt-4 inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        className="mt-4 inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white bg-zinc-900 hover:bg-zinc-800"
                       >
                         Reconnect GitHub
                       </button>
@@ -365,7 +365,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                     <>
                       <div className="grid grid-cols-1 gap-4">
                         <div>
-                          <label htmlFor="repository" className="block text-sm font-medium text-gray-700">
+                          <label htmlFor="repository" className="block text-sm font-medium text-white">
                             Select Repository
                           </label>
                           <select
@@ -373,9 +373,9 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                             name="selectedRepo"
                             value={projectInfo.selectedRepo}
                             onChange={handleRepoSelect}
-                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm rounded-md"
+                            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-zinc-700 bg-zinc-900 text-white focus:outline-none focus:ring-white focus:border-white sm:text-sm rounded-sm"
                           >
-                            <option value="">-- Select a repository --</option>
+                            <option value="" className="bg-zinc-900">-- Select a repository --</option>
                             {projectInfo.repositories.map((repo) => (
                               <option
                                 key={repo.id}
@@ -395,7 +395,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                           type="button"
                           onClick={() => setStep(3)}
                           disabled={!projectInfo.selectedRepo}
-                          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none ${!projectInfo.selectedRepo ? 'opacity-50 cursor-not-allowed' : ''
+                          className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm shadow-sm text-black bg-white hover:bg-gray-200 focus:outline-none ${!projectInfo.selectedRepo ? 'opacity-50 cursor-not-allowed' : ''
                             }`}
                         >
                           Next: Configure Project
@@ -407,7 +407,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
               )}
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                <div className="bg-red-950/50 border border-red-900 text-red-500 px-4 py-3 rounded-sm">
                   {error}
                 </div>
               )}
@@ -417,16 +417,16 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
           {/* Step 3: Configure Project */}
           {step === 3 && (
             <div className="space-y-4">
-              <div className="bg-green-50 p-4 rounded-lg border border-green-100 mb-6">
-                <h2 className="text-lg font-semibold text-green-800">Configure Project Details</h2>
-                <p className="mt-2 text-sm text-green-600">
+              <div className="bg-zinc-900 p-4 rounded-sm border border-zinc-800 mb-6">
+                <h2 className="text-lg font-semibold text-white">Configure Project Details</h2>
+                <p className="mt-2 text-sm text-gray-400">
                   Provide additional details about your project that will be shown to contributors.
                 </p>
               </div>
 
               <form className="space-y-4">
                 <div>
-                  <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="name" className="block text-sm font-medium text-gray-300">
                     Project Name
                   </label>
                   <input
@@ -435,12 +435,12 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                     name="name"
                     value={projectInfo.name}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border border-zinc-700 bg-zinc-900 text-white rounded-sm shadow-sm py-2 px-3 focus:outline-none focus:ring-white focus:border-white sm:text-sm"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="description" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="description" className="block text-sm font-medium text-gray-300">
                     Description
                   </label>
                   <textarea
@@ -449,13 +449,13 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                     rows={3}
                     value={projectInfo.description}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border border-zinc-700 bg-zinc-900 text-white rounded-sm shadow-sm py-2 px-3 focus:outline-none focus:ring-white focus:border-white sm:text-sm"
                     placeholder="Brief description of your project"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="website" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="website" className="block text-sm font-medium text-gray-300">
                     Website URL (Optional)
                   </label>
                   <input
@@ -464,13 +464,13 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                     name="website"
                     value={projectInfo.website}
                     onChange={handleInputChange}
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                    className="mt-1 block w-full border border-zinc-700 bg-zinc-900 text-white rounded-sm shadow-sm py-2 px-3 focus:outline-none focus:ring-white focus:border-white sm:text-sm"
                     placeholder="https://your-project-website.com"
                   />
                 </div>
 
                 <div>
-                  <label htmlFor="githubUrl" className="block text-sm font-medium text-gray-700">
+                  <label htmlFor="githubUrl" className="block text-sm font-medium text-gray-300">
                     GitHub URL
                   </label>
                   <input
@@ -479,7 +479,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                     name="githubUrl"
                     value={projectInfo.githubUrl}
                     readOnly
-                    className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 bg-gray-50 sm:text-sm"
+                    className="mt-1 block w-full border border-zinc-700 rounded-sm shadow-sm py-2 px-3 bg-zinc-800 text-gray-400 sm:text-sm cursor-not-allowed"
                   />
                 </div>
 
@@ -487,7 +487,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                   <button
                     type="button"
                     onClick={() => setStep(2)}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none"
+                    className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white bg-zinc-900 hover:bg-zinc-800 hover:border-white focus:outline-none"
                   >
                     Back
                   </button>
@@ -496,7 +496,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
                     type="button"
                     onClick={registerProject}
                     disabled={loading || !projectInfo.name}
-                    className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-blue-600 hover:bg-blue-700 focus:outline-none ${(loading || !projectInfo.name) ? 'opacity-50 cursor-not-allowed' : ''
+                    className={`inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-sm shadow-sm text-black bg-white hover:bg-gray-200 focus:outline-none ${(loading || !projectInfo.name) ? 'opacity-50 cursor-not-allowed' : ''
                       }`}
                   >
                     {loading ? (
@@ -515,7 +515,7 @@ const ProjectOnboarding = ({ account, contract, profileContract }) => {
               </form>
 
               {error && (
-                <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+                <div className="bg-red-950/50 border border-red-900 text-red-500 px-4 py-3 rounded-sm">
                   {error}
                 </div>
               )}
