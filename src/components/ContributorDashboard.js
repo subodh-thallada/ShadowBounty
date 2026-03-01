@@ -14,6 +14,7 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
   useEffect(() => {
     const fetchData = async () => {
       if (!account || !contract || !profileContract) {
+        setError(!account ? "WALLET_REQUIRED" : "Please connect your wallet and ensure you're on the correct network.");
         setLoading(false);
         return;
       }
@@ -72,16 +73,19 @@ const ContributorDashboard = ({ account, contract, profileContract }) => {
   }
 
   if (error) {
+    const isWalletRequired = error === "WALLET_REQUIRED";
     return (
       <div className="max-w-6xl mx-auto mt-8 px-4">
         <div className="bg-black border border-white text-white px-4 py-8 mb-4">
           <h2 className="text-xl font-bold uppercase mb-2">Error</h2>
-          <p className="font-mono text-sm text-gray-400 mb-6">{error}</p>
+          <p className="font-mono text-sm text-gray-400 mb-6">
+            {isWalletRequired ? "Please connect your wallet to view the contributor dashboard." : error}
+          </p>
           <Link
-            to="/connect-github"
+            to={isWalletRequired ? "/" : "/connect-github"}
             className="inline-block px-6 py-3 border border-white text-white hover:bg-white hover:text-black transition-colors font-mono uppercase tracking-wide text-sm"
           >
-            CONNECT_GITHUB
+            {isWalletRequired ? "CONNECT_WALLET" : "CONNECT_GITHUB"}
           </Link>
         </div>
       </div>

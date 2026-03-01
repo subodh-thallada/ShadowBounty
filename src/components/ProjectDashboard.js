@@ -4,6 +4,7 @@ import axios from 'axios';
 import IssueList from './IssueList';
 import BountyList from './BountyList';
 import ProjectStats from './ProjectStats';
+import RecommendedDevelopers from './RecommendedDevelopers';
 
 const ProjectDashboard = ({ account, contract }) => {
   const { projectId } = useParams();
@@ -170,12 +171,14 @@ const ProjectDashboard = ({ account, contract }) => {
               onCreateBounty={createBounty}
               isProjectOwner={project.ownerAddress.toLowerCase() === account?.toLowerCase()}
             />
-          ) : (
+          ) : activeTab === 'bounties' ? (
             <BountyList
               bounties={bounties}
               isProjectOwner={project.ownerAddress.toLowerCase() === account?.toLowerCase()}
               onRefresh={fetchProjectDetails}
             />
+          ) : (
+            <RecommendedDevelopers projectId={projectId} />
           )}
         </div>
       </div>

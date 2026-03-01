@@ -1,6 +1,6 @@
 import React from 'react';
 
-const BlockchainInfo = ({ profileData, account }) => {
+const BlockchainInfo = ({ profileData, account, isPreviewMode }) => {
   // Helper function to format addresses
   const formatAddress = (address) => {
     if (!address) return '';
@@ -27,6 +27,13 @@ const BlockchainInfo = ({ profileData, account }) => {
     <div className="border-t border-zinc-800 p-6 bg-zinc-950">
       <h2 className="text-lg font-semibold text-white mb-4 font-sans">Blockchain Information</h2>
 
+      {isPreviewMode ? (
+        <div className="rounded-sm bg-amber-950/30 border border-amber-800 p-4">
+          <p className="text-amber-200 text-sm">
+            This analysis has not been saved to the blockchain yet. Click <strong>Save to Blockchain</strong> above to store it on-chain (requires a small gas fee).
+          </p>
+        </div>
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
         <div>
           <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Analyzed On</span>
@@ -65,6 +72,7 @@ const BlockchainInfo = ({ profileData, account }) => {
           </p>
         </div>
       </div>
+      )}
     </div>
   );
 };

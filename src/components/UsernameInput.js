@@ -26,47 +26,25 @@ const UsernameInput = ({ account, contract, verified }) => {
       const existingProfile = await contract.getProfileScore(normalizedUsername);
       
       if (existingProfile.exists) {
-        // Navigate to results for existing profile
+        // Navigate to results for existing profile (no cost - just viewing)
         navigate(`/results/${normalizedUsername}`);
         return;
       }
       
-      // Analyze GitHub profile
+      // Analyze GitHub profile (FREE - just GitHub API calls, no blockchain transaction)
       const analyzer = new GitHubProfileAnalyzer();
       const analysis = await analyzer.analyze(normalizedUsername);
       
-      // Store on blockchain (without including private repos)
-      const tx = await contract.addProfileScore(
-        normalizedUsername,
-        Math.round(analysis.overallScore),
-        analysis.metrics.profileCompleteness,
-        analysis.metrics.followers,
-        analysis.metrics.repositories,
-        analysis.metrics.stars,
-        analysis.metrics.languageDiversity,
-        analysis.metrics.hasPopularRepos === 'Yes',
-        analysis.metrics.recentActivity,
-        false // Don't include private repos for manual username input
-      );
-
-      console.log(`[ANALYZE] Transaction sent with hash: ${tx.hash}`);
- 
-      console.log(`[ANALYZE] Waiting for transaction to be mined...`);      
-      // Wait for transaction to be mined
-      const receipt = await tx.wait();
-      console.log(`[ANALYZE] Transaction mined in block: ${receipt.blockNumber}`);
-      console.log(`[ANALYZE] Gas used: ${receipt.gasUsed.toString()}`);
-      console.log(`[ANALYZE] Events emitted:`, receipt.events);      
-
-      // Verify data was stored - fetch immediately after transaction
-      console.log(`[ANALYZE] Verifying data was stored by fetching from chain...`);
-      const verificationData = await contract.getProfileScore(normalizedUsername);
-      console.log(`[ANALYZE] Verification data exists flag: ${verificationData.exists}`);
-      console.log(`[ANALYZE] Verification data:`, verificationData);
-
-      
-      // Navigate to results page
-      navigate(`/results/${normalizedUsername}`);
+      // Navigate to results with preview data - user can optionally "Save to Blockchain" later
+      // This avoids costing Monad every time they analyze a new profile
+      navigate(`/results/${normalizedUsername}`, {
+        state: {
+          previewAnalysis: {
+            ...analysis,
+            includesPrivateRepos: false,
+          },
+        },
+      });
     } catch (error) {
       console.error('Error:', error);
       setError(error.message || 'An error occurred during analysis');
@@ -76,25 +54,28 @@ const UsernameInput = ({ account, contract, verified }) => {
   };
 
   return (
-    <div className="max-w-xl mx-auto">
-      <div className="bg-white p-8 rounded-lg shadow-lg">
-        <h1 className="text-2xl font-bold text-gray-800 mb-6">Analyze GitHub Profile</h1>
+    <div className="max-w-xl mx-auto mt-8">
+      <h1 className="text-3xl font-bold text-white mb-6 font-sans">Analyze</h1>
+
+      <div className="bg-zinc-950 border border-zinc-800 p-8 rounded-sm overflow-hidden">
+        <h2 className="text-xl font-bold text-white mb-6 font-sans">Analyze GitHub Profile</h2>
         
         {/* Verification banner */}
         {!verified && (
-          <div className="mb-6 bg-blue-50 border-l-4 border-blue-400 p-4">
+          <div className="mb-6 bg-yellow-950/30 border border-yellow-800 p-4 rounded-sm">
             <div className="flex">
               <div className="flex-shrink-0">
-                <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                <svg className="h-5 w-5 text-yellow-400" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
                 </svg>
               </div>
               <div className="ml-3">
-                <p className="text-sm text-blue-700">
-                  You're analyzing public repositories only. 
-                  <Link to="/connect-github" className="font-medium text-blue-700 underline ml-1">
+                <p className="text-sm text-yellow-200">
+                  You're analyzing public repositories only.{' '}
+                  <Link to="/connect-github" className="font-medium text-yellow-400 hover:text-yellow-300 underline">
                     Verify your GitHub account
-                  </Link> to include private data in your score.
+                  </Link>
+                  {' '}to include private data in your score.
                 </p>
               </div>
             </div>
@@ -103,13 +84,13 @@ const UsernameInput = ({ account, contract, verified }) => {
         
         <form onSubmit={handleSubmit}>
           <div className="mb-6">
-            <label htmlFor="username" className="block text-gray-700 text-sm font-medium mb-2">
+            <label htmlFor="username" className="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-2">
               GitHub Username
             </label>
-            <div className="mt-1 relative rounded-md shadow-sm">
+            <div className="mt-1 relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <svg 
-                  className="h-5 w-5 text-gray-400" 
+                  className="h-5 w-5 text-gray-500" 
                   fill="none" 
                   viewBox="0 0 24 24" 
                   stroke="currentColor"
@@ -127,7 +108,7 @@ const UsernameInput = ({ account, contract, verified }) => {
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full pl-10 pr-12 py-3 bg-zinc-900 border border-zinc-700 rounded-sm text-white placeholder-gray-500 focus:outline-none focus:border-white"
                 placeholder="e.g. octocat"
                 disabled={loading}
               />
@@ -135,7 +116,7 @@ const UsernameInput = ({ account, contract, verified }) => {
           </div>
           
           {error && (
-            <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
+            <div className="mb-4 p-4 bg-red-950/30 border border-red-800 text-red-400 rounded-sm">
               {error}
             </div>
           )}
@@ -144,8 +125,8 @@ const UsernameInput = ({ account, contract, verified }) => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full inline-flex justify-center items-center py-3 px-4 border border-transparent rounded-md shadow-sm text-base font-medium text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 ${
-                loading ? 'opacity-75 cursor-not-allowed' : ''
+              className={`w-full inline-flex justify-center items-center py-3 px-4 border border-white rounded-sm text-base font-medium text-white hover:bg-white hover:text-black focus:outline-none transition-colors ${
+                loading ? 'opacity-75 cursor-not-allowed hover:bg-transparent hover:text-white' : ''
               }`}
             >
               {loading ? (
@@ -181,24 +162,24 @@ const UsernameInput = ({ account, contract, verified }) => {
         
         <div className="mt-6 text-sm text-gray-500 text-center">
           <p>
-            This will analyze the GitHub profile and store the results on the blockchain.
+            Analysis is free — we fetch public data from GitHub and show your score.
             <br />
-            You will need to confirm a transaction in your wallet.
+            You can optionally save to the blockchain later (requires a small gas fee).
           </p>
         </div>
       </div>
       
-      <div className="mt-8 bg-white p-6 rounded-lg shadow-lg">
-        <h2 className="text-lg font-semibold text-gray-800 mb-3">How It Works</h2>
+      <div className="mt-8 bg-zinc-950 border border-zinc-800 p-6 rounded-sm overflow-hidden">
+        <h2 className="text-lg font-semibold text-white mb-4 font-sans">How It Works</h2>
         <div className="space-y-4">
           <div className="flex">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600">
+              <div className="flex items-center justify-center h-8 w-8 rounded-sm bg-white text-black font-bold text-sm">
                 1
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-400">
                 We analyze the GitHub profile using various metrics including repositories, stars, followers, and activity level.
               </p>
             </div>
@@ -206,12 +187,12 @@ const UsernameInput = ({ account, contract, verified }) => {
           
           <div className="flex">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600">
+              <div className="flex items-center justify-center h-8 w-8 rounded-sm bg-white text-black font-bold text-sm">
                 2
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-400">
                 A score is calculated based on these metrics, with higher emphasis on star count, activity, and repository quality.
               </p>
             </div>
@@ -219,12 +200,12 @@ const UsernameInput = ({ account, contract, verified }) => {
           
           <div className="flex">
             <div className="flex-shrink-0">
-              <div className="flex items-center justify-center h-8 w-8 rounded-full bg-blue-100 text-blue-600">
+              <div className="flex items-center justify-center h-8 w-8 rounded-sm bg-white text-black font-bold text-sm">
                 3
               </div>
             </div>
             <div className="ml-4">
-              <p className="text-sm text-gray-700">
+              <p className="text-sm text-gray-400">
                 The results are permanently stored on the blockchain, creating an immutable record of the developer's profile score.
               </p>
             </div>

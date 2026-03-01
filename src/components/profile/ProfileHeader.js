@@ -5,6 +5,10 @@ const ProfileHeader = ({
   profileData,
   isOwnVerifiedProfile,
   recalculating,
+  savingToChain,
+  isPreviewMode,
+  handleRefreshAnalysis,
+  handleSaveToBlockchain,
   handleRecalculate,
   setShowTokenInput,
   showTokenInput
@@ -40,24 +44,34 @@ const ProfileHeader = ({
         </div>
       </div>
 
-      {isOwnVerifiedProfile && (
-        <div className="mt-6 flex flex-wrap gap-4">
+      <div className="mt-6 flex flex-wrap gap-4">
+        {(isOwnVerifiedProfile || isPreviewMode) && (
           <button
             onClick={() => handleRecalculate(false)}
             disabled={recalculating}
             className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white bg-zinc-950 hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {recalculating ? 'Updating...' : 'Update Score'}
+            {recalculating ? 'Refreshing...' : 'Refresh Analysis'}
           </button>
-
+        )}
+        {isOwnVerifiedProfile && (
           <button
             onClick={() => setShowTokenInput(!showTokenInput)}
             className="inline-flex items-center px-4 py-2 border border-white text-sm font-medium rounded-sm text-white hover:bg-white hover:text-black focus:outline-none transition-colors"
           >
             {showTokenInput ? 'Hide Token Input' : 'Include Private Repos'}
           </button>
-        </div>
-      )}
+        )}
+        {isPreviewMode && handleSaveToBlockchain && (
+          <button
+            onClick={handleSaveToBlockchain}
+            disabled={savingToChain}
+            className="inline-flex items-center px-4 py-2 border border-amber-600 text-amber-400 text-sm font-medium rounded-sm bg-amber-950/50 hover:bg-amber-900/30 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {savingToChain ? 'Saving...' : 'Save to Blockchain'}
+          </button>
+        )}
+      </div>
     </div>
   );
 };

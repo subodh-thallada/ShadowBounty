@@ -136,32 +136,30 @@ const UnlinkWallet = ({ isOpen, onClose, userAddress }) => {
     return (
         <div className="fixed inset-0 z-50 overflow-y-auto">
             <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-                <div className="fixed inset-0 transition-opacity" aria-hidden="true" onClick={onClose}>
-                    <div className="absolute inset-0 bg-gray-500 opacity-75"></div>
-                </div>
+                <div className="fixed inset-0 transition-opacity bg-black/80" aria-hidden="true" onClick={onClose}></div>
 
                 <span className="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
 
-                <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
-                    <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                <div className="relative inline-block align-bottom bg-zinc-950 border border-zinc-800 rounded-sm text-left overflow-hidden transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+                    <div className="px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
                         <div className="sm:flex sm:items-start">
                             <div className="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left w-full">
-                                <h3 className="text-xl leading-6 font-semibold text-gray-900 mb-4 text-center">
+                                <h3 className="text-xl leading-6 font-semibold text-white mb-4 text-center font-sans">
                                     Unlink Private Wallet
                                 </h3>
 
                                 {!ready ? (
                                     <div className="flex justify-center p-4">
-                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600"></div>
+                                        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
                                     </div>
                                 ) : !walletExists ? (
                                     <div className="text-center py-6">
-                                        <p className="text-gray-600 mb-6">
+                                        <p className="text-gray-400 mb-6">
                                             Create an Unlink private wallet to fund your bounties privately. These funds are isolated from your public MetaMask address.
                                         </p>
                                         <button
                                             onClick={handleCreateWallet}
-                                            className="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                                            className="w-full inline-flex justify-center rounded-sm border border-white px-4 py-2 text-base font-medium text-white hover:bg-white hover:text-black focus:outline-none transition-colors"
                                         >
                                             Create Private Wallet
                                         </button>
@@ -170,22 +168,21 @@ const UnlinkWallet = ({ isOpen, onClose, userAddress }) => {
                                     <div>
                                         {/* Private Dashboard */}
                                         {activeAccount && (
-                                            <div className="bg-gradient-to-r from-gray-800 to-indigo-900 rounded-lg p-5 text-white mb-6">
+                                            <div className="bg-black border border-zinc-800 rounded-sm p-5 mb-6">
                                                 <div className="flex justify-between items-center mb-2">
-                                                    <span className="text-gray-300 text-sm">Active Account</span>
-                                                    <span className="text-xs font-mono bg-black bg-opacity-30 px-2 py-1 rounded">
+                                                    <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Active Account</span>
+                                                    <span className="text-xs font-mono bg-zinc-900 border border-zinc-800 px-2 py-1 rounded-sm text-white">
                                                         {activeAccount.address.slice(0, 10)}...{activeAccount.address.slice(-4)}
                                                     </span>
                                                 </div>
                                                 <div className="mt-4">
-                                                    <span className="text-gray-400 text-sm">Private Balance</span>
+                                                    <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Private Balance</span>
                                                     {Object.entries(balances || {}).length === 0 ? (
-                                                        <div className="text-2xl font-bold mt-1 shadow-sm">0 TOKENS</div>
+                                                        <div className="text-2xl font-bold mt-1 text-white font-sans">0 TOKENS</div>
                                                     ) : (
                                                         <div className="mt-1">
-                                                            {/* Displaying raw balance for now since token decimals vary */}
                                                             {Object.entries(balances).map(([token, balance]) => (
-                                                                <div key={token} className="text-xl font-semibold break-all">
+                                                                <div key={token} className="text-xl font-semibold break-all text-white">
                                                                     {ethers.utils.formatEther(balance.toString())} (raw)
                                                                 </div>
                                                             ))}
@@ -196,25 +193,25 @@ const UnlinkWallet = ({ isOpen, onClose, userAddress }) => {
                                         )}
 
                                         {/* Deposit Section */}
-                                        <div className="border border-gray-200 rounded-lg p-4 mb-4">
-                                            <h4 className="font-semibold text-gray-800 mb-2">Deposit from Public Wallet</h4>
+                                        <div className="border border-zinc-800 rounded-sm p-4 mb-4">
+                                            <h4 className="font-semibold text-white mb-2 font-sans">Deposit from Public Wallet</h4>
                                             <p className="text-xs text-gray-500 mb-3">
                                                 Move tokens from MetaMask into your private Unlink balance. Currently requires test tokens.
                                             </p>
 
                                             <div className="space-y-3">
                                                 <div>
-                                                    <label className="block text-xs font-medium text-gray-700 mb-1">Token Address</label>
+                                                    <label className="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-1">Token Address</label>
                                                     <input
                                                         type="text"
                                                         value={depositTokenAddress}
                                                         onChange={(e) => setDepositTokenAddress(e.target.value)}
-                                                        className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                                        className="w-full text-sm bg-zinc-900 border border-zinc-700 rounded-sm text-white placeholder-gray-500 focus:outline-none focus:border-white px-3 py-2"
                                                         placeholder="0x..."
                                                     />
                                                 </div>
                                                 <div>
-                                                    <label className="block text-xs font-medium text-gray-700 mb-1">Amount</label>
+                                                    <label className="block text-xs font-mono text-gray-500 uppercase tracking-wider mb-1">Amount</label>
                                                     <input
                                                         type="number"
                                                         value={depositAmount}
@@ -222,13 +219,13 @@ const UnlinkWallet = ({ isOpen, onClose, userAddress }) => {
                                                         min="0"
                                                         step="0.01"
                                                         placeholder="0.0"
-                                                        className="w-full text-sm border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+                                                        className="w-full text-sm bg-zinc-900 border border-zinc-700 rounded-sm text-white placeholder-gray-500 focus:outline-none focus:border-white px-3 py-2"
                                                     />
                                                 </div>
                                                 <button
                                                     onClick={handleDeposit}
                                                     disabled={isDepositing || !depositAmount || !depositTokenAddress}
-                                                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none ${isDepositing || !depositAmount ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                    className={`w-full flex justify-center py-2 px-4 border border-white rounded-sm text-sm font-medium text-white hover:bg-white hover:text-black focus:outline-none transition-colors ${isDepositing || !depositAmount ? 'opacity-50 cursor-not-allowed hover:bg-transparent hover:text-white' : ''}`}
                                                 >
                                                     {isDepositing ? 'Depositing...' : 'Deposit to Private Wallet'}
                                                 </button>
@@ -237,22 +234,22 @@ const UnlinkWallet = ({ isOpen, onClose, userAddress }) => {
 
                                         {/* Secret Backup */}
                                         {showMnemonic ? (
-                                            <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-4">
+                                            <div className="bg-yellow-950/30 border border-yellow-800 p-4 mb-4 rounded-sm">
                                                 <div className="flex">
                                                     <div className="flex-shrink-0">
                                                         <span className="text-yellow-400 text-xl">⚠️</span>
                                                     </div>
                                                     <div className="ml-3">
-                                                        <h3 className="text-sm text-yellow-800 font-medium">Backup your recovery phrase!</h3>
-                                                        <div className="mt-2 text-sm text-yellow-700 font-mono bg-yellow-100 p-2 rounded break-all tracking-wide">
+                                                        <h3 className="text-sm text-yellow-200 font-medium">Backup your recovery phrase!</h3>
+                                                        <div className="mt-2 text-sm text-yellow-300 font-mono bg-black/30 p-2 rounded-sm break-all tracking-wide border border-yellow-800">
                                                             {mnemonic}
                                                         </div>
-                                                        <p className="mt-2 text-xs text-yellow-700">
+                                                        <p className="mt-2 text-xs text-yellow-300">
                                                             Write this down. It will only be shown once. If you lose it, your private funds are gone.
                                                         </p>
                                                         <button
                                                             onClick={() => setShowMnemonic(false)}
-                                                            className="mt-2 text-xs font-semibold underline text-yellow-800"
+                                                            className="mt-2 text-xs font-semibold underline text-yellow-400 hover:text-yellow-300"
                                                         >
                                                             I've backed it up
                                                         </button>
@@ -263,7 +260,7 @@ const UnlinkWallet = ({ isOpen, onClose, userAddress }) => {
                                             <div className="text-right">
                                                 <button
                                                     onClick={handleExportBackup}
-                                                    className="text-xs text-red-600 hover:text-red-800 underline"
+                                                    className="text-xs text-red-400 hover:text-red-300 underline"
                                                 >
                                                     Export Recovery Phrase
                                                 </button>
@@ -273,17 +270,17 @@ const UnlinkWallet = ({ isOpen, onClose, userAddress }) => {
                                 )}
 
                                 {error && (
-                                    <div className="mt-4 p-3 bg-red-50 text-red-700 text-sm rounded-md border border-red-200">
+                                    <div className="mt-4 p-4 bg-red-950/30 border border-red-800 text-red-400 text-sm rounded-sm">
                                         {error}
                                     </div>
                                 )}
                             </div>
                         </div>
                     </div>
-                    <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200">
+                    <div className="px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-zinc-800">
                         <button
                             onClick={onClose}
-                            className="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:w-auto sm:text-sm"
+                            className="mt-3 w-full inline-flex justify-center rounded-sm border border-zinc-700 px-4 py-2 text-base font-medium text-white hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors sm:mt-0 sm:w-auto sm:text-sm"
                         >
                             Close
                         </button>

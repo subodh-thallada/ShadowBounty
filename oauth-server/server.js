@@ -716,6 +716,201 @@ app.get('/api/github/issues/:owner/:repo', async (req, res) => {
   }
 });
 
+// Helper to get GitHub token for server-side API calls (higher rate limit)
+function getServerGitHubToken() {
+  return process.env.DEV_GITHUB_TOKEN || process.env.GITHUB_TOKEN || null;
+}
+
+// API to analyze project repository (languages/tech stack)
+app.get('/api/projects/:id/analysis', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    if (!bountyContractAddress) {
+      return res.status(500).json({ success: false, error: 'Bounty contract not configured' });
+    }
+
+    let queryContract = bountyContract || new ethers.Contract(bountyContractAddress, bountyContractABI, provider);
+    const projectData = await queryContract.getProject(id);
+
+    if (!projectData.exists) {
+      return res.status(404).json({ success: false, error: 'Project not found' });
+    }
+
+    const owner = projectData.githubUrl.split('/').filter(Boolean).slice(-2)[0];
+    const repo = projectData.repoName;
+    const token = getServerGitHubToken();
+
+    const headers = { Accept: 'application/vnd.github.v3+json' };
+    if (token) headers.Authorization = `token ${token}`;
+
+    const [repoResponse, languagesResponse] = await Promise.all([
+      axios.get(`https://api.github.com/repos/${owner}/${repo}`, { headers }),
+      axios.get(`https://api.github.com/repos/${owner}/${repo}/languages`, { headers })
+    ]);
+
+    const languages = languagesResponse.data;
+    const totalBytes = Object.values(languages).reduce((a, b) => a + b, 0);
+    const primaryLanguage = repoResponse.data.language || (Object.keys(languages)[0] || null);
+
+    const languageBreakdown = Object.entries(languages).map(([lang, bytes]) => ({
+      language: lang,
+      bytes,
+      percentage: totalBytes > 0 ? Math.round((bytes / totalBytes) * 100) : 0
+    })).sort((a, b) => b.bytes - a.bytes);
+
+    res.json({
+      success: true,
+      analysis: {
+        primaryLanguage,
+        languages: languageBreakdown,
+        languageNames: Object.keys(languages),
+        totalBytes
+      }
+    });
+  } catch (error) {
+    console.error('Project analysis error:', error);
+    if (error.response?.status === 404) {
+      return res.status(404).json({ success: false, error: 'Repository not found' });
+    }
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to analyze project'
+    });
+  }
+});
+
+// Parse curated developer list from env (comma-separated usernames or profile URLs)
+function getCuratedDeveloperUsernames() {
+  const raw = process.env.CURATED_DEVELOPER_USERNAMES || '';
+  if (!raw.trim()) return [];
+  return raw.split(',').map(s => {
+    s = s.trim();
+    const match = s.match(/github\.com\/([^\/\?]+)/);
+    return match ? match[1].toLowerCase() : s.toLowerCase();
+  }).filter(Boolean);
+}
+
+// API to get recommended developers for a project (best to worst by relevance)
+app.get('/api/projects/:id/recommended-developers', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    if (!bountyContractAddress) {
+      return res.status(500).json({ success: false, error: 'Bounty contract not configured' });
+    }
+
+    let queryContract = bountyContract || new ethers.Contract(bountyContractAddress, bountyContractABI, provider);
+    const projectData = await queryContract.getProject(id);
+
+    if (!projectData.exists) {
+      return res.status(404).json({ success: false, error: 'Project not found' });
+    }
+
+    const owner = projectData.githubUrl.split('/').filter(Boolean).slice(-2)[0];
+    const repo = projectData.repoName;
+    const token = getServerGitHubToken();
+    const headers = { Accept: 'application/vnd.github.v3+json' };
+    if (token) headers.Authorization = `token ${token}`;
+
+    const languagesResponse = await axios.get(
+      `https://api.github.com/repos/${owner}/${repo}/languages`,
+      { headers }
+    );
+    const projectLanguages = new Set(Object.keys(languagesResponse.data || {}));
+    const projectLangArray = Array.from(projectLanguages);
+
+    let developerUsernames = getCuratedDeveloperUsernames();
+
+    if (developerUsernames.length === 0 && contract) {
+      const count = await contract.getProfileCount();
+      const batchSize = Math.min(Number(count), 50);
+      if (batchSize > 0) {
+        const profiles = await contract.getProfiles(0, batchSize);
+        developerUsernames = profiles
+          .filter(p => p.exists && p.username)
+          .map(p => p.username.toLowerCase());
+      }
+    }
+
+    if (developerUsernames.length === 0) {
+      return res.json({
+        success: true,
+        recommendations: [],
+        message: 'No developers to recommend. Add CURATED_DEVELOPER_USERNAMES to .env (comma-separated GitHub usernames or profile URLs) or ensure developers have analyzed their profiles on-chain.'
+      });
+    }
+
+    const profileContractForRead = contract || (contractAddress ? new ethers.Contract(contractAddress, contractABI, provider) : null);
+    const recommendations = [];
+    const seen = new Set();
+
+    for (const username of developerUsernames) {
+      if (seen.has(username)) continue;
+      seen.add(username);
+
+      try {
+        const [reposRes, profileData] = await Promise.all([
+          axios.get(`https://api.github.com/users/${username}/repos?per_page=100&sort=updated`, { headers }),
+          profileContractForRead ? profileContractForRead.getProfileScore(username).catch(() => null) : null
+        ]);
+
+        const devRepos = reposRes.data || [];
+        const devLanguages = new Set(devRepos.filter(r => r.language).map(r => r.language));
+        const matchingLangs = projectLangArray.filter(lang => devLanguages.has(lang));
+        const overlap = projectLanguages.size > 0
+          ? matchingLangs.length / projectLanguages.size
+          : 0;
+
+        const totalStars = devRepos.reduce((s, r) => s + (r.stargazers_count || 0), 0);
+        const hasPopularRepos = devRepos.some(r => (r.stargazers_count || 0) >= 10);
+        let chainScore = 0;
+        if (profileData && profileData.exists) {
+          chainScore = Number(profileData.overallScore) || 0;
+        }
+
+        const relevanceScore = (
+          overlap * 50 +
+          (chainScore / 100) * 30 +
+          (matchingLangs.length > 0 ? 10 : 0) +
+          (hasPopularRepos ? 5 : 0) +
+          Math.min(totalStars / 100, 5)
+        );
+
+        recommendations.push({
+          username,
+          avatarUrl: reposRes.data?.[0]?.owner?.avatar_url || `https://github.com/${username}.png`,
+          profileUrl: `https://github.com/${username}`,
+          relevanceScore: Math.round(relevanceScore * 10) / 10,
+          matchingLanguages: matchingLangs,
+          allLanguages: Array.from(devLanguages),
+          overallScore: chainScore,
+          totalStars,
+          reposCount: devRepos.length,
+          hasPopularRepos
+        });
+      } catch (err) {
+        if (err.response?.status === 404) continue;
+        console.warn(`Could not fetch developer ${username}:`, err.message);
+      }
+    }
+
+    recommendations.sort((a, b) => b.relevanceScore - a.relevanceScore);
+
+    res.json({
+      success: true,
+      projectLanguages: projectLangArray,
+      recommendations
+    });
+  } catch (error) {
+    console.error('Recommended developers error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to get recommendations'
+    });
+  }
+});
+
 // API to get a specific project by ID
 app.get('/api/projects/:id', async (req, res) => {
   const { id } = req.params;

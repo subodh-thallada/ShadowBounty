@@ -6,6 +6,7 @@ A decentralized web application that analyzes GitHub profiles, securely verifies
 
 - **Wallet Integration**: Connect with MetaMask or other EVM wallets on Monad
 - **GitHub OAuth**: Securely verify wallet-to-GitHub connections
+- **Project Developer Recommendations**: Companies see developers ranked by relevance (language overlap, experience) for each posted project
 - **Private Repository Analysis**: Include private repos in score calculation (for verified users)
 - **Zero-Knowledge Privacy**: Include private data without revealing sensitive information
 - **Blockchain Storage**: Permanently store profile scores on Monad blockchain
@@ -81,6 +82,8 @@ npm install
 # Set up environment variables
 cp .env.example .env
 # Edit .env with GitHub OAuth credentials and Monad contract address
+# Optional: Add CURATED_DEVELOPER_USERNAMES (comma-separated GitHub usernames or profile URLs)
+# Optional: Add DEV_GITHUB_TOKEN for higher GitHub API rate limits when analyzing projects
 
 # Start the server
 npm start

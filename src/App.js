@@ -237,9 +237,10 @@ function App() {
     }
   };
 
-  // Function to disconnect wallet
+  // Function to disconnect wallet (log out)
   const disconnectWallet = () => {
     setAccount(null);
+    setProvider(null);
     setSigner(null);
     setContract(null);
     setBountyContract(null);
