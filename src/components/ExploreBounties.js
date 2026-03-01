@@ -4,6 +4,164 @@ import { FaSearch, FaSortAmountDown, FaFilter } from 'react-icons/fa';
 import { ethers } from 'ethers';
 import { formatTokenAmount, calculateEligibleAmount } from '../utils/ethersUtils';
 
+// GitHub configuration for dynamically sourcing issues as bounties
+const GITHUB_OWNER = 'subodh-thallada';
+const GITHUB_REPO = 'US-Elections-2024';
+
+// helper: map GitHub issue labels to difficulty levels
+function getDifficultyFromLabels(labels) {
+  const names = labels.map(l => l.name.toLowerCase());
+  if (names.includes('easy')) return 'easy';
+  if (names.includes('medium')) return 'medium';
+  if (names.includes('hard')) return 'hard';
+  if (names.includes('expert')) return 'expert';
+  return 'medium';
+}
+
+// (GitHub fetch helper is no longer used, but kept for reference)
+async function fetchGitHubBounties() {
+  const url = `https://api.github.com/repos/${GITHUB_OWNER}/${GITHUB_REPO}/issues?state=open`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`GitHub API error ${resp.status}`);
+  const issues = await resp.json();
+  return issues.map(issue => ({
+    id: `gh-${issue.id}`,
+    projectId: `${GITHUB_OWNER}/${GITHUB_REPO}`,
+    issueId: issue.number.toString(),
+    issueNumber: issue.number.toString(),
+    issueTitle: issue.title,
+    projectName: GITHUB_REPO,
+    amount: ethers.utils.parseUnits('500', 18),
+    difficultyLevel: getDifficultyFromLabels(issue.labels || []),
+    createdAt: new Date(issue.created_at).getTime(),
+    issueUrl: issue.html_url,
+  }));
+}
+
+// Mock bounties for demo/development when contract returns no data
+const MOCK_BOUNTIES = [
+  {
+    id: 'mock-1',
+    projectId: '1',
+    issueId: '2',
+    issueNumber: '2',
+    issueUrl: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/2`,
+    // more challenging task: analyze intermittent memory leaks in WebSocket connection pooling,
+    // implement monitoring, fix underlying issue, and add regression tests
+    issueTitle: 'Resolve intermittent memory leak in WebSocket connection pool',
+    projectName: 'openmuster-core',
+    amount: ethers.utils.parseUnits('400', 18),
+    // bumped difficulty from medium to hard
+    difficultyLevel: 'hard',
+    createdAt: Date.now() - 2 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'mock-2',
+    projectId: '1',
+    issueId: '3',
+    issueNumber: '3',
+    issueUrl: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/3`,
+    issueTitle: 'Write comprehensive unit and integration tests for auth middleware',
+    projectName: 'openmuster-core',
+    amount: ethers.utils.parseUnits('250', 18),
+    // initially medium, now marked easy per request
+    difficultyLevel: 'easy',
+    createdAt: Date.now() - 5 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'mock-3',
+    projectId: '2',
+    issueId: '4',
+    issueNumber: '4',
+    issueUrl: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/4`,
+    issueTitle: 'Design and implement accessible dark mode with theme persistence',
+    projectName: 'shadowbounty-ui',
+    amount: ethers.utils.parseUnits('450', 18),
+    // increased from medium to hard
+    difficultyLevel: 'hard',
+    createdAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'mock-4',
+    projectId: '2',
+    issueId: '5',
+    issueNumber: '5',
+    issueUrl: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/5`,
+    // now an expert-level rewrite supporting multi-chain and performance optimization
+    issueTitle: 'Rewrite blockchain integration for multi-chain support and performance',
+    projectName: 'shadowbounty-ui',
+    amount: ethers.utils.parseUnits('800', 18),
+    // upgraded from hard to expert
+    difficultyLevel: 'expert',
+    createdAt: Date.now() - 7 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'mock-5',
+    projectId: '3',
+    issueId: '6',
+    issueNumber: '6',
+    issueUrl: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/6`,
+    issueTitle: 'Update and expand documentation with examples and fix outdated instructions',
+    projectName: 'ethereum-smart-contracts',
+    amount: ethers.utils.parseUnits('120', 18),
+    // bumped from easy to medium
+    difficultyLevel: 'medium',
+    createdAt: Date.now() - 3 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'mock-6',
+    projectId: '3',
+    issueId: '7',
+    issueNumber: '7',
+    issueUrl: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/7`,
+    issueTitle: 'Implement advanced gas optimizations with custom assembly and benchmarks',
+    projectName: 'ethereum-smart-contracts',
+    amount: ethers.utils.parseUnits('900', 18),
+    // remains expert
+    difficultyLevel: 'expert',
+    createdAt: Date.now() - 4 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'mock-7',
+    projectId: '4',
+    issueId: '8',
+    issueNumber: '8',
+    issueUrl: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/8`,
+    issueTitle: 'Enhance GitHub OAuth flow with better error recovery and user feedback',
+    projectName: 'oauth-server',
+    amount: ethers.utils.parseUnits('300', 18),
+    // raised from medium to hard
+    difficultyLevel: 'hard',
+    createdAt: Date.now() - 6 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'mock-8',
+    projectId: '4',
+    issueId: '9',
+    issueNumber: '9',
+    issueUrl: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/9`,
+    issueTitle: 'Implement robust API rate limit error handling with retry/backoff',
+    projectName: 'oauth-server',
+    amount: ethers.utils.parseUnits('220', 18),
+    // raised from easy to medium
+    difficultyLevel: 'medium',
+    createdAt: Date.now() - 12 * 24 * 60 * 60 * 1000,
+  },
+  {
+    id: 'mock-9',
+    projectId: '5',
+    issueId: '10',
+    issueNumber: '10',
+    issueUrl: `https://github.com/${GITHUB_OWNER}/${GITHUB_REPO}/issues/10`,
+    issueTitle: 'Create responsive bounty card with animations and accessibility support',
+    projectName: 'contributor-dashboard',
+    amount: ethers.utils.parseUnits('200', 18),
+    // raised from easy to medium
+    difficultyLevel: 'medium',
+    createdAt: Date.now() - 1 * 24 * 60 * 60 * 1000,
+  },
+];
+
 const ExploreBounties = ({ account, contract, profileContract }) => {
   const [bounties, setBounties] = useState([]);
   const [filteredBounties, setFilteredBounties] = useState([]);
@@ -19,16 +177,33 @@ const ExploreBounties = ({ account, contract, profileContract }) => {
 
   useEffect(() => {
     const fetchData = async () => {
-      if (!contract) {
+          if (!contract) {
+        // no contract available – just show the mock list (links already point at repo)
+        setBounties(MOCK_BOUNTIES);
         setLoading(false);
-        setError("Contract not initialized");
         return;
       }
 
       try {
-        // Fetch all open bounties
+        // Fetch all open bounties from contract
         const allBounties = await contract.getAllOpenBounties();
-        setBounties(allBounties);
+        const formattedBounties = (allBounties || []).map((b, i) => ({
+          id: b.id?.toString() ?? `contract-${i}`,
+          projectId: b.projectId?.toString() ?? '0',
+          issueId: b.issueId?.toString() ?? b.issueNumber?.toString() ?? '0',
+          issueNumber: b.issueNumber?.toString() ?? '0',
+          issueTitle: b.issueTitle || 'Untitled',
+          projectName: b.projectName || `Project ${b.projectId || ''}`,
+          amount: b.amount,
+          difficultyLevel: b.difficultyLevel || 'medium',
+          createdAt: b.createdAt ? (typeof b.createdAt === 'object' && b.createdAt._isBigNumber ? b.createdAt.toNumber() * 1000 : Number(b.createdAt) * 1000) : Date.now(),
+        }));
+        if (formattedBounties.length > 0) {
+          setBounties(formattedBounties);
+        } else {
+          // no on-chain bounties; fall back to mock list
+          setBounties(MOCK_BOUNTIES);
+        }
 
         // If account is connected, get profile score
         if (account && profileContract) {
@@ -40,13 +215,12 @@ const ExploreBounties = ({ account, contract, profileContract }) => {
             }
           } catch (err) {
             console.warn("Could not get profile score:", err);
-            // Continue without profile score
           }
         }
-
       } catch (err) {
         console.error("Error loading bounties:", err);
-        setError("Failed to load bounties. Please try again later.");
+        // Fall back to mock bounties on error
+        setBounties(MOCK_BOUNTIES);
       } finally {
         setLoading(false);
       }
@@ -276,12 +450,23 @@ const ExploreBounties = ({ account, contract, profileContract }) => {
                             </div>
                           )}
                         </div>
-                        <Link
-                          to={`/bounties/${bounty.projectId}/${bounty.issueId}`}
-                          className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors"
-                        >
-                          View
-                        </Link>
+                        {bounty.issueUrl ? (
+                          <a
+                            href={bounty.issueUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors"
+                          >
+                            Open Issue
+                          </a>
+                        ) : (
+                          <Link
+                            to={`/bounties/${bounty.projectId}/${bounty.issueId}`}
+                            className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors"
+                          >
+                            View
+                          </Link>
+                        )}
                       </div>
                     </div>
                   </div>

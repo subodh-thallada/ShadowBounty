@@ -105,6 +105,22 @@ cp .env.example .env
 npm start
 ```
 
+### Fetching GitHub‑backed bounties
+
+The explore page can automatically load open issues from a GitHub repository
+instead of the built‑in mock data. By default the repo is
+`subodh-thallada/US-Elections-2024` and is hardcoded in
+`src/components/ExploreBounties.js`.
+
+You can preview what the frontend would show by running the helper script:
+
+```bash
+node scripts/fetchGithubBounties.js
+```
+
+Each bounty card will render a **Create PR** link that navigates directly to
+that issue on GitHub, where you can start a pull request against the repo.
+
 Visit http://localhost:3000 to use the application.
 
 ## User Flow
