@@ -1,29 +1,37 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import Navbar from './components/Navbar';
+import HomePage from './components/HomePage';
+import ExploreBounties from './components/ExploreBounties';
 import { ethers } from 'ethers';
 import { UnlinkProvider } from '@unlink-xyz/react';
 
-import OpenSourceBountyABI from './abis/OpenSourceBounty.json'; // Make sure this file exists
-import GitHubProfileScoreOAuthABI from './abis/GitHubProfileScoreOAuth.json'; // Make sure this file exists
-
-// Components
-import ConnectWallet from './components/ConnectWallet';
-import ConnectGitHub from './components/ConnectGithub';
-import UsernameInput from './components/UsernameInput';
-import ProfileResults from './components/ProfileResults';
-import VerificationSuccess from './components/VerificationSuccess';
-import VerificationFailed from './components/VerificationFailed';
-import Navbar from './components/Navbar';
-import ContributorDashboard from './components/ContributorDashboard';
-import ExploreBounties from './components/ExploreBounties';
-import BountyDetail from './components/BountyDetail';
-import ProjectOnboarding from './components/ProjectOnboarding';
-import BountyList from './components/BountyList';
-import ProjectsList from './components/ProjectsList';
-import ProjectIssues from './components/ProjectIssues';
-
-// Contract ABI
+import OpenSourceBountyABI from './abis/OpenSourceBounty.json';
+import GitHubProfileScoreOAuthABI from './abis/GitHubProfileScoreOAuth.json';
 import { CONTRACT_ABI } from './constants/contractAbi';
+
+// Lazy-loaded Components
+const ConnectWallet = lazy(() => import('./components/ConnectWallet'));
+const ConnectGitHub = lazy(() => import('./components/ConnectGithub'));
+const UsernameInput = lazy(() => import('./components/UsernameInput'));
+const ProfileResults = lazy(() => import('./components/ProfileResults'));
+const VerificationSuccess = lazy(() => import('./components/VerificationSuccess'));
+const VerificationFailed = lazy(() => import('./components/VerificationFailed'));
+const Leaderboard = lazy(() => import('./components/Leaderboard'));
+const Docs = lazy(() => import('./components/Docs'));
+const ContributorDashboard = lazy(() => import('./components/ContributorDashboard'));
+const BountyDetail = lazy(() => import('./components/BountyDetail'));
+const ProjectOnboarding = lazy(() => import('./components/ProjectOnboarding'));
+const BountyList = lazy(() => import('./components/BountyList'));
+const ProjectsList = lazy(() => import('./components/ProjectsList'));
+const ProjectIssues = lazy(() => import('./components/ProjectIssues'));
+
+// Loading Fallback Component
+const LoadingFallback = () => (
+  <div className="flex items-center justify-center min-h-screen bg-black text-white">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white"></div>
+  </div>
+);
 
 function App() {
   // State for wallet connection
@@ -53,13 +61,13 @@ function App() {
   useEffect(() => {
     const init = async () => {
       try {
-        // Clear any previous connection data if it's causing issues
-        // Uncomment the next line if you want to start fresh
-        // localStorage.removeItem('connectedAccount');
+        // Check if user explicitly logged out (for demo reset)
+        if (localStorage.getItem('explicitLogout') === 'true') {
+          setLoading(false);
+          return;
+        }
 
-        // Check if ethereum is available (MetaMask or other wallet)
         if (window.ethereum) {
-          // Create ethers provider
           const provider = new ethers.providers.Web3Provider(window.ethereum);
           setProvider(provider);
 
@@ -67,30 +75,30 @@ function App() {
           const accounts = await provider.listAccounts();
 
           if (accounts.length > 0) {
-            console.log("Found connected account:", accounts[0]);
-            setAccount(accounts[0]);
+            const currentAccount = accounts[0];
+            setAccount(currentAccount);
             const signer = provider.getSigner();
             setSigner(signer);
 
-            // Initialize main contract
+            // Initialize contracts in parallel where possible
+            // Note: ethers.Contract creation is synchronous, but we can organize it better
+
+            // 1. Profile/Main Contract
             if (contractAddress) {
               try {
-                const contract = new ethers.Contract(
+                const mainContract = new ethers.Contract(
                   contractAddress,
-                  CONTRACT_ABI,
+                  GitHubProfileScoreOAuthABI.abi || GitHubProfileScoreOAuthABI,
                   signer
                 );
-                setContract(contract);
+                setContract(mainContract);
 
-                // Check GitHub verification status
-                await checkGitHubVerification(contract, accounts[0]);
-              } catch (contractError) {
-                console.error("Contract initialization error:", contractError);
-                // Continue without contract
-              }
+                // Fire and forget verification check to not block initial render
+                checkGitHubVerification(mainContract, currentAccount);
+              } catch (e) { console.error("Main contract error:", e); }
             }
 
-            // Initialize bounty contract
+            // 2. Bounty Contract
             if (bountyContractAddress) {
               try {
                 const bContract = new ethers.Contract(
@@ -99,13 +107,10 @@ function App() {
                   signer
                 );
                 setBountyContract(bContract);
-                console.log("Bounty contract initialized");
-              } catch (error) {
-                console.error("Bounty contract initialization error:", error);
-              }
+              } catch (e) { console.error("Bounty contract error:", e); }
             }
 
-            // Initialize profile contract
+            // 3. Profile Contract (Mainly for ZK checks/OAuth)
             if (profileContractAddress) {
               try {
                 const pContract = new ethers.Contract(
@@ -114,17 +119,13 @@ function App() {
                   signer
                 );
                 setProfileContract(pContract);
-                console.log("Profile contract initialized");
-              } catch (error) {
-                console.error("Profile contract initialization error:", error);
-              }
+              } catch (e) { console.error("Profile contract error:", e); }
             }
           }
         }
       } catch (error) {
         console.error("Initialization error:", error);
       } finally {
-        // Always set loading to false, even if there are errors
         setLoading(false);
       }
     };
@@ -163,6 +164,9 @@ function App() {
     try {
       setLoading(true);
 
+      // Clear explicit logout flag when user intentionally connects
+      localStorage.removeItem('explicitLogout');
+
       if (walletType === 'ethereum' || !walletType) {
         // Default to Ethereum if type is not specified
         const provider = new ethers.providers.Web3Provider(walletProvider);
@@ -179,7 +183,7 @@ function App() {
           try {
             const contract = new ethers.Contract(
               contractAddress,
-              CONTRACT_ABI,
+              GitHubProfileScoreOAuthABI.abi || GitHubProfileScoreOAuthABI,
               signer
             );
             setContract(contract);
@@ -222,12 +226,18 @@ function App() {
           }
         }
 
+        // Redirect to home after successful connection
+        window.location.href = '/';
+
       } else if (walletType === 'polkadot') {
         // Basic Polkadot wallet handling for now
         setAccount(address);
         setWalletType('polkadot');
         // We'll implement the rest of Polkadot integration later
         setVerificationStatus({ verified: false, checking: false });
+
+        // Redirect to home after successful connection
+        window.location.href = '/';
       }
     } catch (error) {
       console.error("Failed to connect to wallet:", error);
@@ -237,6 +247,7 @@ function App() {
     }
   };
 
+  // Function to disconnect wallet (log out)
   // Function to disconnect wallet (log out)
   const disconnectWallet = () => {
     setAccount(null);
@@ -252,6 +263,26 @@ function App() {
     // Clear saved connection info
     localStorage.removeItem('connectedAccount');
     localStorage.removeItem('walletType');
+  };
+
+  // Function to handle global demo reset (GitHub cookies + Wallet)
+  const handleDemoReset = async () => {
+    try {
+      // Clear GitHub server-side session
+      const oauthServerUrl = process.env.REACT_APP_OAUTH_SERVER_URL || 'http://localhost:3001';
+      await fetch(`${oauthServerUrl}/api/auth/unlink`, { method: 'GET', credentials: 'include' });
+    } catch (error) {
+      console.error("Failed to unlink GitHub session:", error);
+    }
+
+    // Disconnect wallet/local state
+    disconnectWallet();
+
+    // Set flag to prevent auto-connect on reload (important for demo reset)
+    localStorage.setItem('explicitLogout', 'true');
+
+    // Force redirect to home
+    window.location.href = '/';
   };
 
   // Function to handle successful GitHub verification
@@ -356,168 +387,157 @@ function App() {
     <UnlinkProvider chain="monad-testnet" autoSync={true}>
       <Router>
         <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
-          <Navbar
-            account={account}
-            walletType={walletType}
-            onDisconnect={disconnectWallet}
-            username={verifiedUsername}
-            verified={verificationStatus.verified}
-            navItems={[
-              { label: 'Explore Bounties', path: '/explore-bounties' },
-              { label: 'Contributor Dashboard', path: '/contributor-dashboard' },
-              { label: 'Create Project', path: '/project-onboarding' },
-              { label: 'Projects', path: '/projects' },
-              { label: 'Profile', path: `/results/${verifiedUsername}` },
-            ]}
-          />
+          <Suspense fallback={<LoadingFallback />}>
+            <Navbar
+              account={account}
+              walletType={walletType}
+              onDisconnect={handleDemoReset} // Using handleDemoReset instead of just disconnectWallet
+              username={verifiedUsername}
+              verified={verificationStatus.verified}
+              navItems={[
+                { label: 'Explore Bounties', path: '/explore-bounties' },
+                { label: 'Contributor Dashboard', path: '/contributor-dashboard' },
+                { label: 'Create Project', path: '/project-onboarding' },
+                { label: 'Projects', path: '/projects' },
+                { label: 'Profile', path: `/results/${verifiedUsername}` },
+              ]}
+            />
 
-          <main className="container mx-auto px-4 py-8">
-            <Routes>
-              {/* Home route - redirects based on connection status */}
-              <Route
-                path="/"
-                element={
-                  account ? (
-                    // If wallet is connected and GitHub is verified, go to profile
-                    verificationStatus.verified ? (
-                      <Navigate to={`/results/${verifiedUsername}`} replace />
+            <main className="container mx-auto px-4 py-8">
+              <Routes>
+                {/* Home route - show homepage */}
+                <Route path="/" element={<HomePage account={account} verifiedUsername={verifiedUsername} verified={verificationStatus.verified} onConnect={connectWallet} />} />
+
+                {/* Connection route */}
+                <Route path="/connect" element={<ConnectWallet onConnect={connectWallet} />} />
+
+                {/* GitHub connection route */}
+                <Route
+                  path="/connect-github"
+                  element={
+                    account ? (
+                      <ConnectGitHub
+                        account={account}
+                        contract={contract}
+                        walletType={walletType}
+                        onVerificationSuccess={handleVerificationSuccess}
+                      />
                     ) : (
-                      // If wallet is connected but GitHub not verified, go to GitHub connect
-                      <Navigate to="/connect-github" replace />
+                      <Navigate to="/" replace />
                     )
-                  ) : (
-                    // If wallet not connected, show connect wallet page
-                    <ConnectWallet onConnect={connectWallet} />
-                  )
-                }
-              />
-
-              {/* GitHub connection route */}
-              <Route
-                path="/connect-github"
-                element={
-                  account ? (
-                    <ConnectGitHub
-                      account={account}
-                      contract={contract}
-                      walletType={walletType}
-                      onVerificationSuccess={handleVerificationSuccess}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                }
-              />
-
-              {/* Manual username input (for public data only) */}
-              <Route
-                path="/analyze"
-                element={
-                  account ? (
-                    <UsernameInput
-                      account={account}
-                      contract={contract}
-                      walletType={walletType}
-                      verified={verificationStatus.verified}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                }
-              />
-
-              {/* Profile results page */}
-              <Route
-                path="/results/:username"
-                element={
-                  account ? (
-                    <ProfileResults
-                      account={account}
-                      contract={contract}
-                      walletType={walletType}
-                      isVerified={verificationStatus.verified}
-                      verifiedUsername={verifiedUsername}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                }
-              />
-              <Route path="/contributor-dashboard" element={
-                <ContributorDashboard
-                  account={account}
-                  contract={bountyContract}
-                  profileContract={contract}
+                  }
                 />
-              } />
 
-              <Route path="/explore-bounties" element={
-                <ExploreBounties
-                  account={account}
-                  contract={bountyContract}
-                  profileContract={contract}
+                {/* Manual username input (for public data only) */}
+                <Route
+                  path="/analyze"
+                  element={
+                    account ? (
+                      <UsernameInput
+                        account={account}
+                        contract={contract}
+                        walletType={walletType}
+                        verified={verificationStatus.verified}
+                      />
+                    ) : (
+                      <Navigate to="/" replace />
+                    )
+                  }
                 />
-              } />
 
-              <Route path="/bounties/:projectId/:issueId" element={
-                <BountyDetail
-                  account={account}
-                  contract={bountyContract}
-                  profileContract={profileContract}
+                {/* Profile results page */}
+                <Route
+                  path="/results/:username"
+                  element={
+                    account ? (
+                      <ProfileResults
+                        account={account}
+                        contract={contract}
+                        walletType={walletType}
+                        isVerified={verificationStatus.verified}
+                        verifiedUsername={verifiedUsername}
+                      />
+                    ) : (
+                      <Navigate to="/" replace />
+                    )
+                  }
                 />
-              } />
+                <Route path="/contributor-dashboard" element={
+                  <ContributorDashboard
+                    account={account}
+                    contract={bountyContract}
+                    profileContract={contract}
+                  />
+                } />
 
-              <Route path="/projects/:projectId/bounties" element={
-                <BountyList
-                  account={account}
-                  contract={bountyContract}
+                <Route path="/explore-bounties" element={
+                  <ExploreBounties
+                    account={account}
+                    contract={bountyContract}
+                    profileContract={contract}
+                  />
+                } />
+
+                <Route path="/bounties/:projectId/:issueId" element={
+                  <BountyDetail
+                    account={account}
+                    contract={bountyContract}
+                    profileContract={contract} // Use main contract for profile checks
+                  />
+                } />
+
+                <Route path="/projects/:projectId/bounties" element={
+                  <BountyList
+                    account={account}
+                    contract={bountyContract}
+                  />
+                } />
+
+                <Route path="/project-onboarding" element={
+                  <ProjectOnboarding
+                    account={account}
+                    contract={bountyContract}
+                    profileContract={contract}
+                  />
+                } />
+
+                {/* GitHub OAuth callback routes */}
+                <Route
+                  path="/verification-success"
+                  element={
+                    account ? (
+                      <VerificationSuccess
+                        onVerificationComplete={handleVerificationSuccess}
+                      />
+                    ) : (
+                      <Navigate to="/" replace />
+                    )
+                  }
                 />
-              } />
 
-              <Route path="/project-onboarding" element={
-                <ProjectOnboarding
-                  account={account}
-                  contract={bountyContract}
-                  profileContract={contract}
+                <Route
+                  path="/verification-failed"
+                  element={
+                    account ? (
+                      <VerificationFailed />
+                    ) : (
+                      <Navigate to="/" replace />
+                    )
+                  }
                 />
-              } />
 
-              {/* GitHub OAuth callback routes */}
-              <Route
-                path="/verification-success"
-                element={
-                  account ? (
-                    <VerificationSuccess
-                      onVerificationComplete={handleVerificationSuccess}
-                    />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                }
-              />
+                <Route path="/projects" element={
+                  <ProjectsList account={account} />
+                } />
 
-              <Route
-                path="/verification-failed"
-                element={
-                  account ? (
-                    <VerificationFailed />
-                  ) : (
-                    <Navigate to="/" replace />
-                  )
-                }
-              />
+                <Route path="/projects/:projectId" element={
+                  <ProjectIssues account={account} />
+                } />
 
-              <Route path="/projects" element={
-                <ProjectsList account={account} />
-              } />
+              </Routes>
 
-              <Route path="/projects/:projectId" element={
-                <ProjectIssues account={account} />
-              } />
-
-            </Routes>
-
-          </main>
+            </main>
+          </Suspense>
         </div>
       </Router>
     </UnlinkProvider>

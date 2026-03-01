@@ -265,6 +265,18 @@ app.get('/api/auth/reset', (req, res) => {
   res.json({ success: true, message: 'Authentication reset' });
 });
 
+// Unlink GitHub for demo / user-requested unlinking
+app.get('/api/auth/unlink', (req, res) => {
+  // Clear the GitHub OAuth cookie regardless of NODE_ENV so users can unlink in demos
+  try {
+    res.clearCookie('github_oauth_token');
+    return res.json({ success: true, message: 'GitHub unlinked' });
+  } catch (err) {
+    console.error('Error unlinking GitHub:', err);
+    return res.status(500).json({ success: false, error: 'Failed to unlink GitHub' });
+  }
+});
+
 app.get('/api/github/repos/:username/authenticated', async (req, res) => {
   const originalUsername = req.params.username;
   const username = originalUsername.toLowerCase();

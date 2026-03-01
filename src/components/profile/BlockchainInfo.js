@@ -24,54 +24,54 @@ const BlockchainInfo = ({ profileData, account, isPreviewMode }) => {
   };
 
   return (
-    <div className="border-t border-zinc-800 p-6 bg-zinc-950">
-      <h2 className="text-lg font-semibold text-white mb-4 font-sans">Blockchain Information</h2>
+    <div className="border-t border-zinc-800 p-6 bg-black">
+      <h2 className="text-sm font-mono uppercase tracking-[0.2em] text-gray-500 mb-6 font-sans">Blockchain Information</h2>
 
       {isPreviewMode ? (
-        <div className="rounded-sm bg-amber-950/30 border border-amber-800 p-4">
-          <p className="text-amber-200 text-sm">
-            This analysis has not been saved to the blockchain yet. Click <strong>Save to Blockchain</strong> above to store it on-chain (requires a small gas fee).
+        <div className="rounded-none bg-zinc-900 border border-zinc-700 p-4">
+          <p className="text-gray-400 text-xs font-mono uppercase tracking-widest">
+            Analysis Not Saved On-Chain
           </p>
         </div>
       ) : (
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-        <div>
-          <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Analyzed On</span>
-          <p className="mt-1 text-white">{formatDate(profileData.analyzedAt)}</p>
-        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Analyzed On</span>
+            <p className="mt-1 text-white">{formatDate(profileData.analyzedAt)}</p>
+          </div>
 
-        <div>
-          <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Analyzed By</span>
-          <p className="mt-1">
-            <a
-              href={`https://testnet.monadexplorer.com/address/${profileData.analyzedBy}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white transition-colors"
-            >
-              {formatAddress(profileData.analyzedBy)}
-              {account.toLowerCase() === profileData.analyzedBy.toLowerCase() &&
-                <span className="ml-2 text-xs bg-zinc-800 text-white border border-zinc-700 py-0.5 px-2 rounded-sm">You</span>
-              }
-            </a>
-          </p>
-        </div>
+          <div>
+            <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Analyzed By</span>
+            <p className="mt-1">
+              <a
+                href={`https://testnet.monadexplorer.com/address/${profileData.analyzedBy}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-400 hover:text-white transition-colors flex items-center"
+              >
+                {formatAddress(profileData.analyzedBy)}
+                {account.toLowerCase() === profileData.analyzedBy.toLowerCase() &&
+                  <span className="ml-2 text-[10px] font-mono bg-white text-black py-0.5 px-2 rounded-none">YOU</span>
+                }
+              </a>
+            </p>
+          </div>
 
-        <div>
-          <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Data Privacy</span>
-          <p className="mt-1">
-            {profileData.includesPrivateRepos ? (
-              <span className="text-green-400 font-medium">
-                {profileData.hasZkVerification
-                  ? "Includes private repositories (ZK verified)"
-                  : "Includes private repositories"}
-              </span>
-            ) : (
-              <span className="text-gray-500">Public repositories only</span>
-            )}
-          </p>
+          <div>
+            <span className="text-xs font-mono text-gray-500 uppercase tracking-wider">Data Privacy</span>
+            <p className="mt-1">
+              {profileData.includesPrivateRepos ? (
+                <span className="text-green-400 font-medium">
+                  {profileData.hasZkVerification
+                    ? "Includes private repositories (ZK verified)"
+                    : "Includes private repositories"}
+                </span>
+              ) : (
+                <span className="text-gray-500">Public repositories only</span>
+              )}
+            </p>
+          </div>
         </div>
-      </div>
       )}
     </div>
   );

@@ -63,7 +63,29 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
               {verified && (
                 <div className="flex items-center mr-4 bg-zinc-900 border border-zinc-800 rounded-sm py-1 px-3">
                   <FaGithub className="text-gray-300 mr-2" />
-                  <span className="text-sm text-gray-300">{username}</span>
+                  <span className="text-sm text-gray-300 mr-2">{username}</span>
+                  <button
+                    title="Unlink GitHub"
+                    onClick={async () => {
+                      try {
+                        const resp = await fetch(`${process.env.REACT_APP_OAUTH_SERVER_URL || 'http://localhost:3001'}/api/auth/unlink`, { credentials: 'include' });
+                        const data = await resp.json();
+                        if (resp.ok && data.success) {
+                          alert('GitHub unlinked, reloading');
+                          window.location.reload();
+                        } else {
+                          console.error('Unlink failed', data);
+                          alert('Failed to unlink GitHub');
+                        }
+                      } catch (err) {
+                        console.error('Error unlinking GitHub:', err);
+                        alert('Error unlinking GitHub');
+                      }
+                    }}
+                    className="text-xs text-red-400 hover:text-red-300"
+                  >
+                    ×
+                  </button>
                 </div>
               )}
 
@@ -96,7 +118,7 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
                       className="w-full flex items-center px-4 py-2 text-sm text-left text-red-400 hover:bg-zinc-800 hover:text-red-300 transition-colors"
                     >
                       <FaSignOutAlt className="mr-3 h-4 w-4" />
-                      Log out
+                      Reset Session
                     </button>
                   </div>
                 )}
@@ -104,8 +126,8 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
             </div>
           ) : (
             <Link
-              to="/"
-              className="bg-white text-black font-medium border border-transparent rounded-sm py-2 px-4 hover:bg-gray-200 transition-colors"
+              to="/connect"
+              className="bg-white text-black font-bold border border-white rounded-none py-2 px-6 hover:bg-black hover:text-white transition-colors uppercase text-xs tracking-widest"
             >
               Connect Wallet
             </Link>
@@ -151,29 +173,51 @@ const Navbar = ({ account, walletType, onDisconnect, username, verified, navItem
           {account ? (
             <div className="space-y-3">
               {verified && (
-                <div className="flex items-center bg-gray-800 rounded-md p-2">
+                <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-none p-2">
                   <FaGithub className="text-white mr-2" />
-                  <span className="text-sm text-white">{username}</span>
+                  <span className="text-sm text-white mr-2">{username}</span>
+                  <button
+                    title="Unlink GitHub"
+                    onClick={async () => {
+                      try {
+                        const resp = await fetch(`${process.env.REACT_APP_OAUTH_SERVER_URL || 'http://localhost:3001'}/api/auth/unlink`, { credentials: 'include' });
+                        const data = await resp.json();
+                        if (resp.ok && data.success) {
+                          alert('GitHub unlinked, reloading');
+                          window.location.reload();
+                        } else {
+                          console.error('Unlink failed', data);
+                          alert('Failed to unlink GitHub');
+                        }
+                      } catch (err) {
+                        console.error('Error unlinking GitHub:', err);
+                        alert('Error unlinking GitHub');
+                      }
+                    }}
+                    className="text-xs text-red-400 hover:text-red-300"
+                  >
+                    ×
+                  </button>
                 </div>
               )}
 
-              <div className="flex items-center bg-gray-800 rounded-md p-2">
+              <div className="flex items-center bg-zinc-900 border border-zinc-800 rounded-none p-2">
                 <FaWallet className="text-white mr-2" />
                 <span className="text-sm text-white">{truncateAddress(account)}</span>
               </div>
 
               <button
                 onClick={() => { onDisconnect(); setIsMenuOpen(false); }}
-                className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-red-400 border border-red-900/50 rounded-md hover:bg-red-950/30 hover:text-red-300 transition-colors"
+                className="w-full flex items-center justify-center gap-2 py-3 text-sm font-medium text-red-500 border border-red-900/30 rounded-none hover:bg-red-950/20 transition-colors"
               >
                 <FaSignOutAlt className="h-4 w-4" />
-                Log out
+                Reset Session
               </button>
             </div>
           ) : (
             <Link
-              to="/"
-              className="block w-full text-center bg-white text-black font-medium rounded-md py-2 hover:bg-gray-200 transition-colors"
+              to="/connect"
+              className="block w-full text-center bg-white text-black font-bold rounded-none py-3 hover:bg-black hover:text-white border border-white transition-colors uppercase text-xs tracking-widest"
               onClick={() => setIsMenuOpen(false)}
             >
               Connect Wallet

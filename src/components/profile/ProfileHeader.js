@@ -20,7 +20,7 @@ const ProfileHeader = ({
           <img
             src={`https://github.com/${username}.png?size=100`}
             alt={`${username} GitHub avatar`}
-            className="h-16 w-16 rounded-sm border-2 border-zinc-700"
+            className="h-16 w-16 rounded-none border-2 border-white"
           />
           <div className="ml-4">
             <h1 className="text-2xl font-bold text-white tracking-tight font-sans">{username}</h1>
@@ -28,9 +28,9 @@ const ProfileHeader = ({
               href={`https://github.com/${username}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-400 hover:text-white text-sm transition-colors"
+              className="text-gray-400 hover:text-white text-xs font-mono transition-colors"
             >
-              github.com/{username}
+              GITHUB.COM/{username.toUpperCase()}
             </a>
           </div>
         </div>
@@ -49,7 +49,7 @@ const ProfileHeader = ({
           <button
             onClick={() => handleRecalculate(false)}
             disabled={recalculating}
-            className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white bg-zinc-950 hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-4 py-2 border border-white text-xs font-mono uppercase tracking-widest text-white bg-black hover:bg-white hover:text-black focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-none"
           >
             {recalculating ? 'Refreshing...' : 'Refresh Analysis'}
           </button>
@@ -57,16 +57,16 @@ const ProfileHeader = ({
         {isOwnVerifiedProfile && (
           <button
             onClick={() => setShowTokenInput(!showTokenInput)}
-            className="inline-flex items-center px-4 py-2 border border-white text-sm font-medium rounded-sm text-white hover:bg-white hover:text-black focus:outline-none transition-colors"
+            className="inline-flex items-center px-4 py-2 border border-zinc-700 text-xs font-mono uppercase tracking-widest text-white hover:bg-white hover:text-black focus:outline-none transition-colors rounded-none"
           >
-            {showTokenInput ? 'Hide Token Input' : 'Include Private Repos'}
+            {showTokenInput ? 'Hide Settings' : 'Include Private Repos'}
           </button>
         )}
         {isPreviewMode && handleSaveToBlockchain && (
           <button
             onClick={handleSaveToBlockchain}
             disabled={savingToChain}
-            className="inline-flex items-center px-4 py-2 border border-amber-600 text-amber-400 text-sm font-medium rounded-sm bg-amber-950/50 hover:bg-amber-900/30 focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="inline-flex items-center px-4 py-2 border border-white text-xs font-mono uppercase tracking-widest text-black bg-white hover:bg-black hover:text-white focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed rounded-none"
           >
             {savingToChain ? 'Saving...' : 'Save to Blockchain'}
           </button>

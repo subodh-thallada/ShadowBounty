@@ -4,7 +4,7 @@ import ProofBadges from '../ProofBadges';
 const ScoreBreakdown = ({ profileData, zkProofs }) => {
   return (
     <div className="p-6 border-t border-zinc-800">
-      <h2 className="text-lg font-semibold text-white mb-4 font-sans">Score Breakdown</h2>
+      <h2 className="text-sm font-mono uppercase tracking-[0.2em] text-gray-500 mb-6">Score Breakdown</h2>
 
       {zkProofs.length > 0 && (
         <div className="py-3 mb-4">
@@ -13,86 +13,65 @@ const ScoreBreakdown = ({ profileData, zkProofs }) => {
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-sm">
-          <div className="text-xs font-mono text-gray-500 uppercase tracking-wider">Profile Completeness</div>
-          <div className="mt-1 flex items-baseline">
-            <span className="text-xl font-semibold text-white font-sans">
+        <div className="bg-black border border-zinc-800 p-6 rounded-none">
+          <div className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-2">Profile Completeness</div>
+          <div className="flex items-baseline">
+            <span className="text-2xl font-bold text-white font-sans">
               {profileData.metrics.profileCompleteness}%
             </span>
-            <span className="ml-2 text-sm text-gray-500">
-              Personal details & bio
-            </span>
           </div>
         </div>
-        
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-sm">
-          <div className="text-xs font-mono text-gray-500 uppercase tracking-wider">Followers</div>
-          <div className="mt-1 flex items-baseline">
-            <span className="text-xl font-semibold text-white font-sans">
+
+        <div className="bg-black border border-zinc-800 p-6 rounded-none">
+          <div className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-2">Followers</div>
+          <div className="flex items-baseline">
+            <span className="text-2xl font-bold text-white font-sans">
               {profileData.metrics.followers}
             </span>
-            <span className="ml-2 text-sm text-gray-500">
-              GitHub followers
-            </span>
           </div>
         </div>
-        
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-sm">
-          <div className="text-xs font-mono text-gray-500 uppercase tracking-wider">Repositories</div>
-          <div className="mt-1 flex items-baseline">
-            <span className="text-xl font-semibold text-white font-sans">
+
+        <div className="bg-black border border-zinc-800 p-6 rounded-none">
+          <div className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-2">Repositories</div>
+          <div className="flex items-baseline">
+            <span className="text-2xl font-bold text-white font-sans">
               {profileData.metrics.repositories}
             </span>
-            <span className="ml-2 text-sm text-gray-500">
-              {profileData.includesPrivateRepos ? 'All repos' : 'Public repos'}
-            </span>
           </div>
         </div>
-        
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-sm">
-          <div className="text-xs font-mono text-gray-500 uppercase tracking-wider">Stars</div>
-          <div className="mt-1 flex items-baseline">
-            <span className="text-xl font-semibold text-white font-sans">
+
+        <div className="bg-black border border-zinc-800 p-6 rounded-none">
+          <div className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-2">Stars</div>
+          <div className="flex items-baseline">
+            <span className="text-2xl font-bold text-white font-sans">
               {profileData.metrics.stars}
             </span>
-            <span className="ml-2 text-sm text-gray-500">
-              Total across all repos
-            </span>
           </div>
         </div>
-        
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-sm">
-          <div className="text-xs font-mono text-gray-500 uppercase tracking-wider">Language Diversity</div>
-          <div className="mt-1 flex items-baseline">
-            <span className="text-xl font-semibold text-white font-sans">
+
+        <div className="bg-black border border-zinc-800 p-6 rounded-none">
+          <div className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-2">Language Diversity</div>
+          <div className="flex items-baseline">
+            <span className="text-2xl font-bold text-white font-sans">
               {profileData.metrics.languageDiversity}
             </span>
-            <span className="ml-2 text-sm text-gray-500">
-              Different languages used
-            </span>
           </div>
         </div>
-        
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-sm">
-          <div className="text-xs font-mono text-gray-500 uppercase tracking-wider">Has Popular Repos</div>
-          <div className="mt-1 flex items-baseline">
-            <span className="text-xl font-semibold text-white font-sans">
+
+        <div className="bg-black border border-zinc-800 p-6 rounded-none">
+          <div className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-2">Has Popular Repos</div>
+          <div className="flex items-baseline">
+            <span className="text-2xl font-bold text-white font-sans">
               {profileData.metrics.hasPopularRepos}
             </span>
-            <span className="ml-2 text-sm text-gray-500">
-              Repos with 10+ stars
-            </span>
           </div>
         </div>
-        
-        <div className="bg-zinc-950 border border-zinc-800 p-4 rounded-sm">
-          <div className="text-xs font-mono text-gray-500 uppercase tracking-wider">Recent Activity</div>
-          <div className="mt-1 flex items-baseline">
-            <span className="text-xl font-semibold text-white font-sans">
+
+        <div className="bg-black border border-zinc-800 p-6 rounded-none">
+          <div className="text-[10px] font-mono text-gray-500 uppercase tracking-[0.2em] mb-2">Recent Activity</div>
+          <div className="flex items-baseline">
+            <span className="text-2xl font-bold text-white font-sans">
               {profileData.metrics.recentActivity}/100
-            </span>
-            <span className="ml-2 text-sm text-gray-500">
-              Based on recent events
             </span>
           </div>
         </div>

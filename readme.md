@@ -11,6 +11,7 @@ A decentralized web application that analyzes GitHub profiles, securely verifies
 - **Zero-Knowledge Privacy**: Include private data without revealing sensitive information
 - **Blockchain Storage**: Permanently store profile scores on Monad blockchain
 - **Automatic Profile Recognition**: Remember users when they return to the app
+- **Unlink GitHub**: Users can unlink and re-link their GitHub account (useful for demos)
 
 ## Project Components
 
@@ -123,10 +124,12 @@ that issue on GitHub, where you can start a pull request against the repo.
 
 Visit http://localhost:3000 to use the application.
 
+> ⚙️ **Demo tip:** click your GitHub username in the top right and then the × or "Unlink GitHub" button to clear the connection. You can reconnect anytime. Use the "Disconnect" / logout button to unlink your wallet.
+
 ## User Flow
 
 1. **Connect Wallet**: User connects their Ethereum wallet
-2. **GitHub Authorization**: User authorizes the app to access their GitHub profile
+2. **GitHub Authorization**: User authorizes the app to access their GitHub profile (can be unlinked later via the UI)
 3. **Verification**: The app verifies ownership and stores association on-chain
 4. **Profile Analysis**: The app analyzes the GitHub profile (public or private data)
 5. **Score Display**: Results are shown and stored on blockchain

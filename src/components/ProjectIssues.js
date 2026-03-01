@@ -4,6 +4,7 @@ import axios from 'axios';
 import BountyModal from './BountyModal';
 import { ethers } from 'ethers';
 import { useUnlink, useWithdraw } from '@unlink-xyz/react';
+import { MOCK_BOUNTIES } from '../constants/mockBounties';
 
 const ERC20_ABI = [
   "function approve(address spender, uint256 amount) external returns (bool)",
@@ -16,6 +17,8 @@ const ERC20_ABI = [
 
 const BOUNTY_CONTRACT_ADDRESS = process.env.REACT_APP_BOUNTY_CONTRACT_ADDRESS || "0x959DBbfd4a4c07b74c6C62bA72e65a63A55d615f";
 const BOUNTY_ABI = ["function paymentToken() external view returns (address)"];
+
+
 
 
 const ProjectIssues = ({ account }) => {
@@ -32,6 +35,8 @@ const ProjectIssues = ({ account }) => {
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [showBountyModal, setShowBountyModal] = useState(false);
   const [creatingBounty, setCreatingBounty] = useState(false);
+  const [approvingBounty, setApprovingBounty] = useState(false);
+  const [expandedIssue, setExpandedIssue] = useState(null);
 
   // Unlink integration
   const [useUnlinkForBounty, setUseUnlinkForBounty] = useState(false);
@@ -99,26 +104,58 @@ const ProjectIssues = ({ account }) => {
     }
   };
 
-
   const fetchBounties = async (projectId) => {
+    const map = {};
     try {
+
+      // Initialize with mock bounties for this project
+      MOCK_BOUNTIES.forEach(mock => {
+        if (String(mock.projectId) === String(projectId)) {
+          map[mock.issueNumber] = {
+            ...mock,
+            status: 'OPEN',
+            isMock: true
+          };
+        }
+      });
+
       const response = await axios.get(
         `${OAUTH_SERVER_URL}/api/bounties/project/${projectId}`,
         { withCredentials: true }
       );
 
       if (response.data && response.data.success) {
-        // Create a map of issue number to bounty
-        const map = {};
-        response.data.bounties.forEach(bounty => {
+        // Overlay on-chain bounties
+        for (const bounty of response.data.bounties) {
           map[bounty.issueNumber] = bounty;
-        });
-        setBountyMap(map);
+
+          // If submitted, fetch details
+          if (bounty.status === 'SUBMITTED') {
+            try {
+              const provider = new ethers.providers.Web3Provider(window.ethereum);
+              const bountyContract = new ethers.Contract(BOUNTY_CONTRACT_ADDRESS, ["function submissions(uint256) view returns (string, uint256, string)"], provider);
+              const submission = await bountyContract.submissions(bounty.id);
+              map[bounty.issueNumber].submission = {
+                pullRequestUrl: submission[0],
+                submittedAt: new Date(submission[1].toNumber() * 1000).toLocaleString(),
+                githubUsername: submission[2]
+              };
+            } catch (err) {
+              console.warn(`Error fetching submission for bounty ${bounty.id}:`, err);
+            }
+          }
+        }
       }
+      setBountyMap(map);
     } catch (error) {
       console.error('Error fetching bounties:', error);
+      // Even if API fails, still show mocks if we have them
+      if (Object.keys(map).length > 0) {
+        setBountyMap(map);
+      }
     }
   };
+
 
   useEffect(() => {
     fetchProject();
@@ -331,6 +368,51 @@ const ProjectIssues = ({ account }) => {
       setCreatingBounty(false);
     }
   };
+
+  const handleApproveBounty = async (bountyId) => {
+    if (!account) return;
+
+    if (bountyId === 'mock' || !bountyId) {
+      setApprovingBounty(true);
+      // Simulation for demo
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      alert('Bounty approved and payment processed (Demo Mode)!');
+
+      // Update local state to show COMPLETED
+      const newBountyMap = { ...bountyMap };
+      for (const issueNum in newBountyMap) {
+        if (newBountyMap[issueNum].id === bountyId) {
+          newBountyMap[issueNum].status = 'COMPLETED';
+        }
+      }
+      setBountyMap(newBountyMap);
+      setApprovingBounty(false);
+      setExpandedIssue(null);
+      return;
+    }
+
+    setApprovingBounty(true);
+    try {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      const bountyContract = new ethers.Contract(
+        BOUNTY_CONTRACT_ADDRESS,
+        ["function completeBounty(uint256) external"],
+        signer
+      );
+
+      const tx = await bountyContract.completeBounty(bountyId);
+      await tx.wait();
+
+      alert('Bounty approved and payment processed!');
+      fetchBounties(projectId);
+    } catch (error) {
+      console.error('Error approving bounty:', error);
+      alert(`Failed to approve bounty: ${error.message}`);
+    } finally {
+      setApprovingBounty(false);
+    }
+  };
   // Function to format date
   const formatDate = (dateString) => {
     const options = { year: 'numeric', month: 'short', day: 'numeric' };
@@ -505,26 +587,75 @@ const ProjectIssues = ({ account }) => {
                         </a>
 
                         {hasBounty ? (
-                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-sm text-xs font-medium border bg-green-950/50 text-green-400 border-green-900">
-                            <svg className="-ml-0.5 mr-1.5 h-3 w-3 text-green-500" fill="currentColor" viewBox="0 0 24 24">
-                              <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm-3.5-8v2h7v-2h-7zm0-3v2h7v-2h-7zm0-3v2h7V8h-7z" />
-                            </svg>
-                            Bounty: {formatEth(hasBounty.amount)}
-                          </span>
+                          <div className="flex flex-col items-end">
+                            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-none text-[10px] font-mono uppercase tracking-tight border ${hasBounty.status === 'OPEN' ? 'bg-green-950/30 text-green-400 border-green-900/50' :
+                              hasBounty.status === 'ASSIGNED' ? 'bg-yellow-950/30 text-yellow-400 border-yellow-900/50' :
+                                hasBounty.status === 'SUBMITTED' ? 'bg-blue-950/30 text-blue-400 border-blue-900/50' :
+                                  hasBounty.status === 'COMPLETED' ? 'bg-green-950/50 text-green-400 border-green-500/50' :
+                                    'bg-zinc-800 text-zinc-400 border-zinc-700'
+                              }`}>
+                              {hasBounty.status}: {formatEth(hasBounty.amount)}
+                            </span>
+
+                            {hasBounty.status === 'SUBMITTED' && account && (
+                              (project.ownerAddress && account.toLowerCase() === project.ownerAddress.toLowerCase()) ||
+                              (project.owner && account.toLowerCase() === project.owner.toLowerCase()) ||
+                              (hasBounty.id === 'mock') // Allow simulation for mock bounties for demo
+                            ) && (
+                                <button
+                                  onClick={() => setExpandedIssue(expandedIssue === issue.id ? null : issue.id)}
+                                  className="mt-2 text-[10px] font-mono uppercase text-white hover:underline flex items-center"
+                                >
+                                  {expandedIssue === issue.id ? 'Hide Submission' : 'View Submission'}
+                                  <svg className={`ml-1 h-3 w-3 transform transition-transform ${expandedIssue === issue.id ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                                  </svg>
+                                </button>
+                              )}
+                          </div>
                         ) : (
-                          account && account.toLowerCase() === project.ownerAddress.toLowerCase() && (
+                          account && (
+                            (project.ownerAddress && account.toLowerCase() === project.ownerAddress.toLowerCase()) ||
+                            (project.owner && account.toLowerCase() === project.owner.toLowerCase()) ||
+                            (hasBounty && hasBounty.id === 'mock')
+                          ) && (
                             <button
                               onClick={() => handleCreateBounty(issue)}
-                              className="inline-flex items-center px-2.5 py-1 border border-zinc-700 text-xs font-medium rounded-sm text-white bg-zinc-900 hover:bg-zinc-800 hover:border-gray-500 transition-colors"
+                              className="inline-flex items-center px-3 py-1 border border-white text-[10px] font-mono uppercase tracking-widest text-black bg-white hover:bg-zinc-200 transition-colors rounded-none"
                             >
-                              <svg className="-ml-0.5 mr-1.5 h-3 w-3" fill="currentColor" viewBox="0 0 20 20">
-                                <path d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z" />
-                              </svg>
                               Add Bounty
                             </button>
                           )
                         )}
                       </div>
+
+                      {/* Expanded Submission Details */}
+                      {expandedIssue === issue.id && hasBounty && hasBounty.submission && (
+                        <div className="mt-4 p-4 bg-black border border-zinc-800 rounded-none animate-in fade-in slide-in-from-top-2">
+                          <h4 className="text-[10px] font-mono uppercase text-zinc-500 mb-3 tracking-widest">Developer Submission</h4>
+                          <div className="grid grid-cols-2 gap-4 text-xs font-mono mb-4">
+                            <div>
+                              <span className="block text-zinc-600 mb-1">CONTRIBUTOR</span>
+                              <span className="text-white">@{hasBounty.submission.githubUsername}</span>
+                            </div>
+                            <div>
+                              <span className="block text-zinc-600 mb-1">DATE</span>
+                              <span className="text-white">{hasBounty.submission.submittedAt}</span>
+                            </div>
+                            <div className="col-span-2">
+                              <span className="block text-zinc-600 mb-1">PULL REQUEST</span>
+                              <a href={hasBounty.submission.pullRequestUrl} target="_blank" rel="noopener noreferrer" className="text-blue-400 underline break-all">{hasBounty.submission.pullRequestUrl}</a>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => handleApproveBounty(hasBounty.id)}
+                            disabled={approvingBounty}
+                            className="w-full bg-white text-black font-mono uppercase tracking-widest text-[10px] py-2 hover:bg-zinc-200 transition-colors disabled:opacity-50"
+                          >
+                            {approvingBounty ? 'Processing Payout...' : 'Approve & Release Payment'}
+                          </button>
+                        </div>
+                      )}
 
                       <div className="mt-1 text-sm text-gray-400 line-clamp-2">
                         {issue.body ? issue.body.substring(0, 150) + (issue.body.length > 150 ? '...' : '') : 'No description'}

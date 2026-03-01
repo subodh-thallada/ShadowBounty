@@ -1,10 +1,12 @@
 import React from 'react';
 import { initiateGithubAuth } from '../../utils/githubauth';
 
-const TokenInput = ({ 
+const OAUTH_SERVER_URL = process.env.REACT_APP_OAUTH_SERVER_URL || 'http://localhost:3001';
+
+const TokenInput = ({
   account,  // Add wallet address prop
   username,
-  showZkProofSection, 
+  showZkProofSection,
   setShowZkProofSection,
   handleRecalculate,
   recalculating,
@@ -26,7 +28,7 @@ const TokenInput = ({
       {!isVerifiedForUsername ? (
         <div className="mb-4 p-4 bg-yellow-950/30 border border-yellow-800 text-yellow-200 rounded-sm">
           <p className="text-sm">
-            <span className="font-medium">Verification required:</span> To include private repositories, 
+            <span className="font-medium">Verification required:</span> To include private repositories,
             your wallet must be verified as the owner of this GitHub account. Please reconnect GitHub to verify.
           </p>
         </div>
@@ -34,12 +36,12 @@ const TokenInput = ({
         <p className="text-sm text-green-400 mb-4">
           ✓ Your wallet is verified for this GitHub account. You can include private repositories.
         </p>
-      )}      
+      )}
 
       <p className="text-sm text-gray-400 mb-4">
         Connect your GitHub account to include private repositories in your score calculation.
       </p>
-      
+
       <div className="space-y-4">
         <div className="flex items-start">
           <div className="flex items-center h-5">
@@ -61,22 +63,26 @@ const TokenInput = ({
             </p>
           </div>
         </div>
-        
-        <div className="flex justify-between">
-          <button
-            onClick={startGithubAuth}
-            className="inline-flex items-center px-4 py-2 border border-zinc-700 text-sm font-medium rounded-sm text-white bg-zinc-950 hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors"
-          >
-            Reconnect GitHub
-          </button>
-          
-          <button
-            onClick={() => handleRecalculate(true)}
-            disabled={recalculating}
-            className="inline-flex items-center px-4 py-2 border border-white text-sm font-medium rounded-sm text-white hover:bg-white hover:text-black focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-white"
-          >
-            {recalculating ? 'Processing...' : 'Include Private Repos'}
-          </button>
+
+        <div className="flex justify-between space-x-3">
+          <div className="flex-1">
+            <button
+              onClick={startGithubAuth}
+              className="w-full inline-flex items-center justify-center px-4 py-2 border border-zinc-700 text-xs font-mono uppercase tracking-widest rounded-none text-white bg-black hover:bg-zinc-800 hover:border-white focus:outline-none transition-colors"
+            >
+              Reconnect GitHub
+            </button>
+          </div>
+
+          <div className="flex-1">
+            <button
+              onClick={() => handleRecalculate(true)}
+              disabled={recalculating}
+              className="w-full inline-flex items-center justify-center px-4 py-2 border border-white text-sm font-medium rounded-none text-white hover:bg-white hover:text-black focus:outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-white uppercase font-mono tracking-widest text-xs"
+            >
+              {recalculating ? 'Processing...' : 'Include Private Repos'}
+            </button>
+          </div>
         </div>
       </div>
     </div>

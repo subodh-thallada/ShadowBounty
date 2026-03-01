@@ -138,7 +138,7 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
         return;
       }
 
-      // Format the data
+      // Format the data - handle both OAuth and ZK contract structures
       const formattedData = {
         username: data.username,
         analyzedAt: new Date(data.timestamp.toNumber() * 1000).toISOString(),
@@ -155,7 +155,7 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
           recentActivity: data.recentActivity
         },
         analyzedBy: data.analyzedBy,
-        includesPrivateRepos: data.includesPrivateRepos
+        includesPrivateRepos: data.includesPrivateRepos ?? false
       };
 
       console.log("[PROFILE_RESULTS] Formatted profile data:", formattedData);
@@ -281,11 +281,34 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
 
   // COSTS MONAD: Save current profile data to blockchain (gas fee)
   const handleSaveToBlockchain = async () => {
-    if (!contract || !profileData) return;
+    if (!contract || !profileData) {
+      setError('Contract or profile data missing. Please connect wallet and analyze again.');
+      return;
+    }
 
     try {
       setSavingToChain(true);
       setError('');
+
+      console.log("[SAVE] Saving profile to blockchain:", profileData.username);
+
+      // Explicitly check for RPC connectivity before sending tx
+      try {
+        console.log("[SAVE] Checking provider connectivity...");
+        const network = await contract.provider.getNetwork();
+        console.log("[SAVE] Connected to network:", network.name, network.chainId);
+      } catch (rpcErr) {
+        console.warn("[SAVE] Initial RPC check failed, trying again...", rpcErr);
+        try {
+          // Simple retry
+          const network = await contract.provider.getNetwork();
+          console.log("[SAVE] Retry successful, connected to:", network.chainId);
+        } catch (retryErr) {
+          console.error("[SAVE] RPC check failed after retry:", retryErr);
+          throw new Error(`RPC connection failed: ${retryErr.message}. This often happens if the Monad Testnet nodes are busy or your MetaMask connection timed out. Please try again in a few seconds.`);
+        }
+      }
+
       const tx = await contract.addProfileScore(
         profileData.username,
         Math.round(profileData.overallScore),
@@ -298,12 +321,20 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
         profileData.metrics.recentActivity,
         profileData.includesPrivateRepos ?? false
       );
+
+      console.log("[SAVE] Transaction sent:", tx.hash);
       await tx.wait();
+      console.log("[SAVE] Transaction confirmed");
+
       setIsPreviewMode(false);
       fetchProfileData();
     } catch (err) {
       console.error('Error saving to blockchain:', err);
-      setError(`Error saving to blockchain: ${err.message}`);
+      // More descriptive error for "Failed to fetch" (common RPC issue)
+      const errorMsg = err.message?.includes('Failed to fetch')
+        ? 'Network error: Failed to reach the blockchain RPC. Please check your internet connection or try again later.'
+        : err.message;
+      setError(`Error saving to blockchain: ${errorMsg}`);
     } finally {
       setSavingToChain(false);
     }
@@ -322,8 +353,8 @@ const ProfileResults = ({ account, contract, isVerified, verifiedUsername }) => 
 
   return (
     <div className="max-w-3xl mx-auto mt-8">
-      <h1 className="text-3xl font-bold text-white mb-6 font-sans">Profile</h1>
-      <div className="bg-zinc-950 border border-zinc-800 rounded-sm shadow-sm overflow-hidden">
+      <h1 className="text-3xl font-bold text-white mb-6 font-sans uppercase tracking-tighter">Profile Analysis</h1>
+      <div className="bg-black border border-white/20 rounded-none overflow-hidden">
         <ProfileHeader
           username={normalizedUsername}
           profileData={profileData}
